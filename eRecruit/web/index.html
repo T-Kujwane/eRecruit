@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <!--
 Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
@@ -13,43 +14,57 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit thi
         <h1>e-Recruit Web Application</h1>
 
         <section>
+
             <header>
                 <h2>Welcome</h2>  
             </header>
 
-            <aside>
-                Welcome to the recruitment automation system, known as <strong><a href="index.html"><em>e-Recruit</em></a></strong>.<br/>
-            </aside>
-            
+            Welcome to the recruitment automation system, known as <strong><a href="index.html"><em>e-Recruit</em></a></strong>.<br/>
+
             <p>
-                Use the navigation links below to perform various actions.
+                Please use the navigation links below to perform various actions.
             </p>
-            <h3>Menu</h3>
-            <table>
+            
+            <table style="background-color: orange;">
                 <tr>
-                    <td>Applicant</td>  <td>Recruiter</td>
+                    <td>Applicant</td>
+                    <td>Recruiter</td>
                 </tr>
-                
+
                 <tr>
                     <td>
-                        <nav id="applicant_vigations">
+                        <nav id="applicant_navigations">
                             <ul>
-                                <li><a href="ApplyServlet">Apply</a></li>
-                                <li><a href="GetApplicationHistoryServlet">View Application History</a></li>
+                                <li><a href="ApplicationServlet">Apply</a></li>
+                                <li><a href="GetApplicationsServlet">View Application History</a></li>
                                 <li><a href="UpdateProfileServlet">Update Profile</a></li>
-                                <li><a href="DeleteProfileServlet">Delete Profile</a></li>
+                                <li><a id="deleteApplication" href="DeleteProfileServlet" onclick="getUserID()">Delete Profile</a></li>
                             </ul>
-
                         </nav>
                     </td>
                     
                     <td>
-                        <nav id="recuiter_navigations">
-                            
+                        <nav id="recruiter_navigation">
+                            <ul>
+                                <li><a href="PublishVacancyServlet">Publish Vacancy</a></li>
+                                <li><a href="GetVacancyApplicationsServlet">View Vacancy Applications</a></li>
+                                <li><a href="WithdrawVacancyServlet">Withdraw Vacancy</a></li>
+                            </ul>
+
                         </nav>
                     </td>
                 </tr>
             </table>
+
         </section>
+        
+        <script>
+            function getUserID(){
+                var userID = prompt("Enter your ID number");
+                //const url = new URL(window.location.href);
+                document.getElementById("deleteApplication").href = "DeleteProfileServlet?id=" + userID; 
+                //url.searchParams.set('id', userID);
+            }
+        </script>
     </body>
 </html>
