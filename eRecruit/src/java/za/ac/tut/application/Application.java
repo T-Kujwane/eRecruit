@@ -1,4 +1,4 @@
-package za.ac.tut.database.manager;
+package za.ac.tut.application;
 
 import java.sql.Date;
 

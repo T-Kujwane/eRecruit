@@ -13,9 +13,9 @@ import javax.servlet.http.HttpServletResponse;
 
 /**
  *
- * @author Student
+ * @author Thato Keith Kujwane
  */
-public class SessionManagerServlet extends HttpServlet {
+public class DeleteProfileServlet extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
@@ -25,7 +25,7 @@ public class SessionManagerServlet extends HttpServlet {
      * @throws ServletException if a servlet-specific error occurs
      * @throws IOException if an I/O error occurs
      */
-    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
+    protected void processRequest(HttpServletRequest request, HttpServletResponse response,String id)
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
         try ( PrintWriter out = response.getWriter()) {
@@ -33,10 +33,10 @@ public class SessionManagerServlet extends HttpServlet {
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet SessionManagerServlet</title>");            
+            out.println("<title>Servlet DeleteProfileServlet</title>");            
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Servlet SessionManagerServlet at " + request.getContextPath() + "</h1>");
+            out.println("<h1>Servlet DeleteProfileServlet at " + request.getContextPath() +  "\t\t\t" + id +  "</h1>");
             out.println("</body>");
             out.println("</html>");
         }
@@ -54,7 +54,7 @@ public class SessionManagerServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response);
+        processRequest(request, response, (String) request.getParameter("id"));
     }
 
     /**
@@ -68,7 +68,7 @@ public class SessionManagerServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response);
+        
     }
 
     /**
