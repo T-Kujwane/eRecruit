@@ -5,11 +5,51 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit thi
 -->
 <html>
     <head>
-        <title>Home</title>
+        <title>Home Page</title>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
     </head>
     <body>
-        <h1>e-Recruit web</h1>
+        <h1>e-Recruit Web Application</h1>
+
+        <section>
+            <header>
+                <h2>Welcome</h2>  
+            </header>
+
+            <aside>
+                Welcome to the recruitment automation system, known as <strong><a href="index.html"><em>e-Recruit</em></a></strong>.<br/>
+            </aside>
+            
+            <p>
+                Use the navigation links below to perform various actions.
+            </p>
+            <h3>Menu</h3>
+            <table>
+                <tr>
+                    <td>Applicant</td>  <td>Recruiter</td>
+                </tr>
+                
+                <tr>
+                    <td>
+                        <nav id="applicant_vigations">
+                            <ul>
+                                <li><a href="ApplyServlet">Apply</a></li>
+                                <li><a href="GetApplicationHistoryServlet">View Application History</a></li>
+                                <li><a href="UpdateProfileServlet">Update Profile</a></li>
+                                <li><a href="DeleteProfileServlet">Delete Profile</a></li>
+                            </ul>
+
+                        </nav>
+                    </td>
+                    
+                    <td>
+                        <nav id="recuiter_navigations">
+                            
+                        </nav>
+                    </td>
+                </tr>
+            </table>
+        </section>
     </body>
 </html>
