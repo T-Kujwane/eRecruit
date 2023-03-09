@@ -4,9 +4,17 @@
         <servlet-name>SessionManagerServlet</servlet-name>
         <servlet-class>za.ac.tut.web.servlet.SessionManagerServlet</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>DeleteProfileServlet</servlet-name>
+        <servlet-class>za.ac.tut.web.servlet.DeleteProfileServlet</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>SessionManagerServlet</servlet-name>
         <url-pattern>/SessionManagerServlet</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>DeleteProfileServlet</servlet-name>
+        <url-pattern>/DeleteProfileServlet</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>
