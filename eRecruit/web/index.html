@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <!--
 Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
@@ -38,7 +37,7 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit thi
                                 <li><a href="ApplicationServlet">Apply</a></li>
                                 <li><a href="GetApplicationsServlet">View Application History</a></li>
                                 <li><a href="UpdateProfileServlet">Update Profile</a></li>
-                                <li><a id="deleteApplication" href="DeleteProfileServlet" onclick="getUserID()">Delete Profile</a></li>
+                                <li><a id="deleteProfile" href="" onclick="getUserID()">Delete Profile</a></li>
                             </ul>
                         </nav>
                     </td>
@@ -57,14 +56,7 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit thi
             </table>
 
         </section>
-        
-        <script>
-            function getUserID(){
-                var userID = prompt("Enter your ID number");
-                //const url = new URL(window.location.href);
-                document.getElementById("deleteApplication").href = "DeleteProfileServlet?id=" + userID; 
-                //url.searchParams.set('id', userID);
-            }
-        </script>
+        <script type="text/javascript" src="scripts/functions.js"></script>
     </body>
+    
 </html>
