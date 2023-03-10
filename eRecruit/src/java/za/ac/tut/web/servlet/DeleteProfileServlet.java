@@ -5,11 +5,18 @@
 package za.ac.tut.web.servlet;
 
 import java.io.IOException;
-import java.io.PrintWriter;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import za.ac.tut.application.Applicant;
+import za.ac.tut.database.manager.DatabaseManager;
+import za.ac.tut.enums.ApplicantFields;
 
 /**
  *
@@ -17,32 +24,13 @@ import javax.servlet.http.HttpServletResponse;
  */
 public class DeleteProfileServlet extends HttpServlet {
 
-    /**
-     * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
-    protected void processRequest(HttpServletRequest request, HttpServletResponse response,String id)
-            throws ServletException, IOException {
-        response.setContentType("text/html;charset=UTF-8");
-        try ( PrintWriter out = response.getWriter()) {
-            /* TODO output your page here. You may use following sample code. */
-            out.println("<!DOCTYPE html>");
-            out.println("<html>");
-            out.println("<head>");
-            out.println("<title>Servlet DeleteProfileServlet</title>");            
-            out.println("</head>");
-            out.println("<body>");
-            out.println("<h1>Servlet DeleteProfileServlet at " + request.getContextPath() +  "\t\t\t" + id +  "</h1>");
-            out.println("</body>");
-            out.println("</html>");
-        }
+    private final DatabaseManager dbManager;
+
+    public DeleteProfileServlet() throws ClassNotFoundException, SQLException {
+        super();
+        this.dbManager = new DatabaseManager("jdbc:mysql://localhost:3306/recruitment_db?useSSL=false", "root", "root");
     }
 
-    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**
      * Handles the HTTP <code>GET</code> method.
      *
@@ -54,7 +42,64 @@ public class DeleteProfileServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response, (String) request.getParameter("id"));
+        HttpSession session = getSession(request);
+
+        String applicantID = request.getParameter("id");
+
+        session.setAttribute("applicantID", applicantID);
+
+        String query = "SELECT * FROM applicant WHERE applicant_id = \'" + applicantID + "\';";
+
+        ResultSet resultSet;
+        Applicant applicant;
+
+        try {
+            resultSet = dbManager.executeQuery(query);
+        } catch (SQLException ex) {
+            System.err.println("Unable to get applicant details from database.");
+            return;
+        }
+
+        try {
+            if (resultSet.isBeforeFirst()) {
+                resultSet.next();
+                
+                String firstName = dbManager.getData(ApplicantFields.FIRST_NAME, resultSet);
+                String middleName = dbManager.getData(ApplicantFields.MIDDLE_NAME, resultSet);
+                String surname = dbManager.getData(ApplicantFields.SURNAME, resultSet);
+                String emailAddress = dbManager.getData(ApplicantFields.EMAIL_ADDRESS, resultSet);
+                String phoneNr = dbManager.getData(ApplicantFields.PHONE_NR, resultSet);
+                applicant = new Applicant(applicantID, firstName, middleName, surname, phoneNr, emailAddress);
+            }else {
+                response.sendRedirect("deleteError.jsp");
+                return;
+            }
+        } catch (SQLException ex) {
+            System.err.println("Unable to get applicant details from result set");
+            return;
+        }
+
+        query = "SELECT vacancy_type FROM vacancy_type vt, prefered_vacancy_type pf WHERE vt.vacancy_type_id = pf.vacancy_type_id AND pf.applicant_id = \'" + applicantID + "\';";
+
+        try {
+            resultSet = dbManager.executeQuery(query);
+        } catch (SQLException ex) {
+            System.err.println("Unable to get applicant prefared vacancy types from databse.");
+            return;
+        }
+
+        try {
+            while (resultSet.next()) {
+                applicant.addPreferedVacancy((String) resultSet.getObject("vacancy_type"));
+            }
+        } catch (SQLException ex) {
+            System.err.println("Unable to process vacancy_types result set");
+            return;
+        }
+
+        session.setAttribute("applicant", applicant);
+
+        response.sendRedirect("displayProfile.jsp");
     }
 
     /**
@@ -68,17 +113,20 @@ public class DeleteProfileServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        
+        HttpSession session = getSession(request);
+
+        String query = "DELETE FROM applicant WHERE applicant_id = \'" + session.getAttribute("applicantID") + "\';";
+
+        try {
+            dbManager.executeUpdate(query);
+        } catch (SQLException ex) {
+            System.err.println("Unable to delete applicant " + session.getAttribute("applicantID"));
+            return;
+        }
+        response.sendRedirect("confirmation.jsp");
     }
 
-    /**
-     * Returns a short description of the servlet.
-     *
-     * @return a String containing servlet description
-     */
-    @Override
-    public String getServletInfo() {
-        return "Short description";
-    }// </editor-fold>
-
+    private HttpSession getSession(HttpServletRequest request) {
+        return request.getSession();
+    }
 }

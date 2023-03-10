@@ -4,88 +4,72 @@
  */
 package za.ac.tut.application;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  *
  * @author My HP
  */
 public class Applicant {
     
-    private String applicantID;
-    private String firstName;
-    private String middleName;
-    private String surname;
-    private String cellNumber;
-    private String email;
-    private String preferredVacancy;
+    private final String applicantID;
+    private final String firstName;
+    private final String middleName;
+    private final String surname;
+    private final String phoneNr;
+    private final String emailAddress;
+    private final List<String> preferredVacancies;
 
-    public Applicant(String applicantID, String firstName, String middleName, String surname, String cellNumber, String email, String preferredVacancy) {
+    public Applicant(String applicantID, String firstName, String middleName, String surname, String phoneNr, String emailAddress, List<String> preferredVacancies) {
         this.applicantID = applicantID;
         this.firstName = firstName;
         this.middleName = middleName;
         this.surname = surname;
-        this.cellNumber = cellNumber;
-        this.email = email;
-        this.preferredVacancy = preferredVacancy;
+        this.phoneNr = phoneNr;
+        this.emailAddress = emailAddress;
+        this.preferredVacancies = preferredVacancies;
     }
 
-    public Applicant() {
+    public Applicant(String applicantID, String firstName, String middleName, String surname, String phoneNr, String emailAddress) {
+        this.applicantID = applicantID;
+        this.firstName = firstName;
+        this.middleName = middleName;
+        this.surname = surname;
+        this.phoneNr = phoneNr;
+        this.emailAddress = emailAddress;
+        this.preferredVacancies = new ArrayList<>();
     }
-
+    
     public String getApplicantID() {
         return applicantID;
-    }
-
-    public void setApplicantID(String applicantID) {
-        this.applicantID = applicantID;
     }
 
     public String getFirstName() {
         return firstName;
     }
 
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
-
     public String getMiddleName() {
         return middleName;
-    }
-
-    public void setMiddleName(String middleName) {
-        this.middleName = middleName;
     }
 
     public String getSurname() {
         return surname;
     }
-
-    public void setSurname(String surname) {
-        this.surname = surname;
-    }
-
-    public String getCellNumber() {
-        return cellNumber;
-    }
-
-    public void setCellNumber(String cellNumber) {
-        this.cellNumber = cellNumber;
+    
+    public String getPhoneNumber() {
+        return phoneNr;
     }
 
     public String getEmail() {
-        return email;
+        return emailAddress;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
+    public List<String> getPreferredVacancies() {
+        return preferredVacancies;
     }
 
-    public String getPreferredVacancy() {
-        return preferredVacancy;
+    public void addPreferedVacancy(String vacancy_type){
+        this.preferredVacancies.add(vacancy_type);
     }
-
-    public void setPreferredVacancy(String preferredVacancy) {
-        this.preferredVacancy = preferredVacancy;
-    }
-    
-    
 }
