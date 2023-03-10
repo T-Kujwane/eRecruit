@@ -16,7 +16,7 @@
         
         <p>
             An applicant with the ID Number: <%=session.getAttribute("applicantID")%> does not exist.<br/>
-            <a href="index.html"></a>
+            <a href="index.html">Go Home</a>
         </p>
     </body>
 </html>

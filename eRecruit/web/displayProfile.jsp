@@ -51,11 +51,11 @@
 
                 <tr>
                     <td>Phone number</td>
-                    <td><%=applicant.getCellNumber()%></td>
+                    <td><%=applicant.getPhoneNumber()%></td>
                 </tr>
 
                 <tr>
-                    <%List<String> preferedVacancies = applicant.getPreferredVacancy();%>
+                    <%List<String> preferedVacancies = applicant.getPreferredVacancies();%>
                     <td>Vacancies Looking For</td>
                     <td>
                         <ol>

@@ -19,7 +19,7 @@
         
         <p>
             We are sad to see you go <%=applicant.getFirstName()%>. Nonetheless, your profile has been deleted. <br/>
-            Click <a href="index.html">here</a> to navigate 
+            Click <a href="index.html">here</a> to navigate back home.
         </p>
     </body>
 </html>
