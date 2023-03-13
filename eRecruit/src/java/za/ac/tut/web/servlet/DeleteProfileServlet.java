@@ -64,11 +64,13 @@ public class DeleteProfileServlet extends HttpServlet {
             if (resultSet.isBeforeFirst()) {
                 resultSet.next();
                 
+
                 String firstName = dbManager.getData(ApplicantFields.FIRST_NAME, resultSet);
                 String middleName = dbManager.getData(ApplicantFields.MIDDLE_NAME, resultSet);
                 String surname = dbManager.getData(ApplicantFields.SURNAME, resultSet);
                 String emailAddress = dbManager.getData(ApplicantFields.EMAIL_ADDRESS, resultSet);
                 String phoneNr = dbManager.getData(ApplicantFields.PHONE_NR, resultSet);
+
                 applicant = new Applicant(applicantID, firstName, middleName, surname, phoneNr, emailAddress);
             }else {
                 response.sendRedirect("deleteError.jsp");

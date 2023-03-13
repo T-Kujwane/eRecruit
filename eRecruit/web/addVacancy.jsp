@@ -18,6 +18,7 @@
         <%
             List<String> vacancyTypes = (List<String>) session.getAttribute("vacancyTypes");
             List<String> qualificationTypes = (List<String>) session.getAttribute("qualificationTypes");
+            List<String> courses = (List<String>) session.getAttribute("courses");
         %>
         <form action="PublishVacancyServlet" method="POST">
             <table>
@@ -45,15 +46,19 @@
                     <td>Required qualification(s)</td>
                     <td>
                         <%for (String qualificationType : qualificationTypes) {%>
-                        <input class="checkbox" type="checkbox" id="<%=qualificationType%>" name="requiredQualification" value="<%=qualificationType%>">
-                        <label class="checkbox" for="<%=qualificationType%>"> <%=qualificationType%></label>
+                        
+                        <input class="checkbox" type="checkbox" id="<%=qualificationType%>" name="requiredQualification" 
+                               value="<%=qualificationType%>" onclick="displayDropDown("<%=qualificationType + "dropDown"%>")">
+                            <label class="checkbox" for="<%=qualificationType%>"> <%=qualificationType%></label>
+                            
                             <%if (!qualificationType.contains("NSC")){%> in 
                                 <select  name="courseName" id="<%=qualificationType + "dropDown"%>">
-                                    <%for (String vacancyType : vacancyTypes) {%>
-                                    <option value="<%=vacancyType%>"><%=vacancyType%></option>
+                                    <%for (String course : courses) {%>
+                                        <option value="<%=course%>"><%=course%></option>
                                     <%}%>
                                 </select>
                             <%}%>
+                            
                         <br/>
                         <%}%>
                     </td>
