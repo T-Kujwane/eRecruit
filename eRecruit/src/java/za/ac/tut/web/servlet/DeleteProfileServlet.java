@@ -131,4 +131,5 @@ public class DeleteProfileServlet extends HttpServlet {
     private HttpSession getSession(HttpServletRequest request) {
         return request.getSession();
     }
+
 }
