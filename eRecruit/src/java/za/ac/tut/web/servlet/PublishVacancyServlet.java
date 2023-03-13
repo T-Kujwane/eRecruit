@@ -9,6 +9,7 @@ import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -18,6 +19,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import za.ac.tut.database.manager.DatabaseManager;
+import za.ac.tut.enums.CourseFields;
 import za.ac.tut.enums.QualificationTypeFields;
 import za.ac.tut.enums.VacancyTypeFields;
 
@@ -106,6 +108,24 @@ public class PublishVacancyServlet extends HttpServlet {
         
         List<String> coursesList = new ArrayList<>();
         
+        query = "SELECT course_name FROM course;";
+        
+        try {
+            resultSet = dbManager.executeQuery(query);
+        } catch (SQLException ex) {
+            System.err.println("Unable to get courses from db.");
+            return;
+        }
+        
+        try {
+            while(resultSet.next()){
+                coursesList.add(dbManager.getData(CourseFields.COURSE_NAME, resultSet));
+            }
+        } catch (SQLException ex) {
+            System.err.println("Unable to get courses from result set.");
+        }
+        
+        se.setAttribute("courses", coursesList);
         
         response.sendRedirect("addVacancy.jsp");
         
