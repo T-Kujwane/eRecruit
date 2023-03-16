@@ -8,6 +8,10 @@
         <servlet-name>DeleteProfileServlet</servlet-name>
         <servlet-class>za.ac.tut.web.servlet.DeleteProfileServlet</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>PublishVacancyServlet</servlet-name>
+        <servlet-class>za.ac.tut.web.servlet.PublishVacancyServlet</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>SessionManagerServlet</servlet-name>
         <url-pattern>/SessionManagerServlet</url-pattern>
@@ -15,6 +19,10 @@
     <servlet-mapping>
         <servlet-name>DeleteProfileServlet</servlet-name>
         <url-pattern>/DeleteProfileServlet</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>PublishVacancyServlet</servlet-name>
+        <url-pattern>/PublishVacancyServlet</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>

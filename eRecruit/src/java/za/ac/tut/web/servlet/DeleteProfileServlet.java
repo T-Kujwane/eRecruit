@@ -64,11 +64,13 @@ public class DeleteProfileServlet extends HttpServlet {
             if (resultSet.isBeforeFirst()) {
                 resultSet.next();
                 
-                String firstName = getApplicantData(ApplicantFields.FIRST_NAME, resultSet);
-                String middleName = getApplicantData(ApplicantFields.MIDDLE_NAME, resultSet);
-                String surname = getApplicantData(ApplicantFields.SURNAME, resultSet);
-                String emailAddress = getApplicantData(ApplicantFields.EMAIL_ADDRESS, resultSet);
-                String phoneNr = getApplicantData(ApplicantFields.PHONE_NR, resultSet);
+
+                String firstName = dbManager.getData(ApplicantFields.FIRST_NAME, resultSet);
+                String middleName = dbManager.getData(ApplicantFields.MIDDLE_NAME, resultSet);
+                String surname = dbManager.getData(ApplicantFields.SURNAME, resultSet);
+                String emailAddress = dbManager.getData(ApplicantFields.EMAIL_ADDRESS, resultSet);
+                String phoneNr = dbManager.getData(ApplicantFields.PHONE_NR, resultSet);
+
                 applicant = new Applicant(applicantID, firstName, middleName, surname, phoneNr, emailAddress);
             }else {
                 response.sendRedirect("deleteError.jsp");
@@ -130,7 +132,4 @@ public class DeleteProfileServlet extends HttpServlet {
         return request.getSession();
     }
 
-    private String getApplicantData(ApplicantFields field, ResultSet results) throws SQLException {
-        return (String) results.getObject(field.name().toLowerCase());
-    }
 }

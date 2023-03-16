@@ -14,3 +14,13 @@ function getUserID(){
     
     document.getElementById("deleteProfile").href = "DeleteProfileServlet?id=" + userID;
 }
+
+function displayDropDown(elementID){
+    let checkBox = document.querySelector("#" + elementID);
+    
+    if (checkBox.checked){
+        document.getElementById(elementID).show();
+    }else {
+        document.getElementById(elementID).hide();
+    }
+}
