@@ -16,11 +16,40 @@ function getUserID(){
 }
 
 function displayDropDown(elementID){
-    let checkBox = document.querySelector("#" + elementID);
+    var checkBox = document.getElementById(elementID + "CheckBox");
     
-    if (checkBox.checked){
-        document.getElementById(elementID).show();
+    if (checkBox.checked === true){
+        document.getElementById(elementID + "DropDown").hidden = false;
     }else {
-        document.getElementById(elementID).hide();
+        document.getElementById(elementID + "DropDown").hidden = true;
     }
+}
+
+function getRecruiterAddForm(){
+    
+    var dropDown = document.getElementById("recruiterDropDown");
+    
+    if (dropDown.value === "newRecruiter"){
+        document.getElementById("addRecruiterTbl").hidden = false;
+    }else {
+        document.getElementById("addRecruiterTbl").hidden = true;
+    }
+}
+
+function getAddSkillForm(){
+    var checkBox = document.getElementById("otherSkillCheck");
+    
+    if (checkBox.checked === true){
+        document.getElementById("otherSkillInput").hidden = false;
+    }else {
+        document.getElementById("otherSkillInput").hidden = true;
+    }
+}
+
+function hide(object){
+    object.hidden = true;
+}
+
+function show(object){
+    object.hidden = false;
 }
