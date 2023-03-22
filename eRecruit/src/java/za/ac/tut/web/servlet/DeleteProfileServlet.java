@@ -7,8 +7,6 @@ package za.ac.tut.web.servlet;
 import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -64,7 +62,6 @@ public class DeleteProfileServlet extends HttpServlet {
             if (resultSet.isBeforeFirst()) {
                 resultSet.next();
                 
-
                 String firstName = dbManager.getData(ApplicantFields.FIRST_NAME, resultSet);
                 String middleName = dbManager.getData(ApplicantFields.MIDDLE_NAME, resultSet);
                 String surname = dbManager.getData(ApplicantFields.SURNAME, resultSet);
@@ -125,7 +122,7 @@ public class DeleteProfileServlet extends HttpServlet {
             System.err.println("Unable to delete applicant " + session.getAttribute("applicantID"));
             return;
         }
-        response.sendRedirect("confirmation.jsp");
+        response.sendRedirect("profileDeleteConfirmation.jsp");
     }
 
     private HttpSession getSession(HttpServletRequest request) {

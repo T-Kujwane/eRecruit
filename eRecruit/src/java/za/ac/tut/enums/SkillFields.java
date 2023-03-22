@@ -5,9 +5,9 @@
 package za.ac.tut.enums;
 
 /**
- * This enumeration provides the column name available to the Qualification Type table
+ * This enumeration provides the column name available to the Skill table
  * @author T Kujwane
  */
-public enum Skill {
-    
+public enum SkillFields {
+    SKILL_ID, SKILL;
 }

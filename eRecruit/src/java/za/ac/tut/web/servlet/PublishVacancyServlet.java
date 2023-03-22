@@ -6,10 +6,11 @@ package za.ac.tut.web.servlet;
 
 import java.io.IOException;
 import java.sql.Date;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -21,20 +22,26 @@ import javax.servlet.http.HttpSession;
 import za.ac.tut.database.manager.DatabaseManager;
 import za.ac.tut.enums.CourseFields;
 import za.ac.tut.enums.QualificationTypeFields;
+import za.ac.tut.enums.RecruiterFields;
+import za.ac.tut.enums.SkillFields;
 import za.ac.tut.enums.VacancyTypeFields;
+import za.ac.tut.qualification.Qualification;
+import za.ac.tut.recruiter.Recruiter;
+import za.ac.tut.vacancy.Vacancy;
 
 /**
  *
  * @author T Kujwane
  */
 public class PublishVacancyServlet extends HttpServlet {
-    
+
     private final DatabaseManager dbManager;
 
     public PublishVacancyServlet() throws ClassNotFoundException, SQLException {
         super();
         this.dbManager = new DatabaseManager("jdbc:mysql://localhost:3306/recruitment_db?useSSL=false", "root", "root");
     }
+
     /**
      * Handles the HTTP <code>GET</code> method.
      *
@@ -47,88 +54,112 @@ public class PublishVacancyServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         HttpSession se = request.getSession();
-        
+
         String query = "SELECT " + VacancyTypeFields.VACANCY_TYPE.name() + " FROM vacancy_type;";
         ResultSet resultSet;
-        
+
         try {
             resultSet = dbManager.executeQuery(query);
         } catch (SQLException ex) {
             System.err.println("Unable to get vacancy types in " + this.getClass().getSimpleName());
             return;
         }
-        
-        List<String> valuesList = new ArrayList<>();
-        
+
         try {
-            if (resultSet.isBeforeFirst()){
-                while (resultSet.next()) {                    
+            if (resultSet.isBeforeFirst()) {
+                List<String> valuesList = createList();
+                while (resultSet.next()) {
                     String vacancyType = dbManager.getData(VacancyTypeFields.VACANCY_TYPE, resultSet);
                     valuesList.add(vacancyType);
                 }
+                addSessionAttribute("vacancyTypes", valuesList, se);
             }
         } catch (SQLException ex) {
             System.err.println("Unable to process result set in " + getClass().getSimpleName());
         }
-        
-        se.setAttribute("vacancyTypes", valuesList);
-        
-        
+
         query = "SELECT type_name FROM qualification_type;";
-        
+
         try {
             resultSet = dbManager.executeQuery(query);
         } catch (SQLException ex) {
             System.err.println("Unable to get qualification types.");
             return;
         }
-        
-        List<String> qualificationTypes = new ArrayList<>();
-        
+
         try {
-            if (resultSet.isBeforeFirst()){
-                while (resultSet.next()) {                    
+            if (resultSet.isBeforeFirst()) {
+                List<String> qualificationTypes = createList();
+                while (resultSet.next()) {
                     qualificationTypes.add(dbManager.getData(QualificationTypeFields.TYPE_NAME, resultSet));
                 }
+                addSessionAttribute("qualificationTypes", qualificationTypes, se);
             }
         } catch (SQLException ex) {
             System.err.println("Unable to get qualification types from result set");
             return;
         }
-        
-        se.setAttribute("qualificationTypes", qualificationTypes);
-        
-        query = "SELECT course_name FROM courses;";
-        
-        try {
-            resultSet = dbManager.executeQuery(query);
-        } catch (SQLException ex) {
-            System.err.println("Unable to get coursesList");
-        }
-        
-        List<String> coursesList = new ArrayList<>();
-        
+
         query = "SELECT course_name FROM course;";
-        
+
         try {
             resultSet = dbManager.executeQuery(query);
         } catch (SQLException ex) {
             System.err.println("Unable to get courses from db.");
             return;
         }
-        
+
         try {
-            while(resultSet.next()){
+            List<String> coursesList = createList();
+            while (resultSet.next()) {
                 coursesList.add(dbManager.getData(CourseFields.COURSE_NAME, resultSet));
             }
+            addSessionAttribute("courses", coursesList, se);
         } catch (SQLException ex) {
             System.err.println("Unable to get courses from result set.");
         }
+
+        try {
+            query = "SELECT enterprise_name FROM recruiter;";
+            resultSet = dbManager.executeQuery(query);
+        } catch (SQLException ex) {
+            System.err.println("Unable to get recruiters from db.");
+            return;
+        }
+
+        try {
+            List<String> recruitersList = createList();
+            while (resultSet.next()) {
+                String enterpriseName = dbManager.getData(RecruiterFields.ENTERPRISE_NAME, resultSet);
+                recruitersList.add(enterpriseName);
+            }
+            addSessionAttribute("recruiters", recruitersList, se);
+        } catch (SQLException ex) {
+            System.err.println("Unable to get recruiters from result set.");
+            return;
+        }
+
+        query = "SELECT skill FROM skill;";
+        try {
+            resultSet = dbManager.executeQuery(query);
+        } catch (SQLException ex) {
+            System.err.println("Unable to get skills from db.");
+            return;
+        }
         
-        se.setAttribute("courses", coursesList);
+        try {
+            List<String> skillsList = createList();
+            while (resultSet.next()) {
+                skillsList.add(dbManager.getData(SkillFields.SKILL, resultSet));
+            }
+            addSessionAttribute("skills", skillsList, se);
+        } catch (SQLException ex) {
+            System.err.println("Unable to get skills from result set.");
+            return;
+        }
         
         response.sendRedirect("addVacancy.jsp");
-        
+
     }
 
     /**
@@ -146,17 +177,174 @@ public class PublishVacancyServlet extends HttpServlet {
         
         String referenceNumber = getParameter("referenceNr", request);
         String vacancyType = getParameter("vacancyType", request);
-        //Date closingDate = new Date(getParameter("closingDate", request));
         
-        Date closingDate = Date.valueOf(vacancyType);
+        Date closingDate = Date.valueOf(getParameter("closingDate", request));
         
         String description = getParameter("description", request);
         
-        //String query = ""
+        
+        List<Qualification> requiredQualifications = getRequiredQualifications(request);
+        
+        String recruiterEnterpriseNr;
+        
+        try {
+            Recruiter r = getRecruiter(request);
+            recruiterEnterpriseNr = r.getEnterpriseNumber();
+        } catch (SQLException ex) {
+            System.err.println("Unable to get recruiter. \n"
+                    + "See the exception message below.\n" + ex.getMessage());
+            return;
+        }
+        
+        List<String> requiredSkills;
+        
+        try {
+            requiredSkills = getRequiredSkills(request);
+        } catch (SQLException ex) {
+            System.err.println("Unable to insert new skills into database."
+                    + "See exception message below\n" + ex + "\n");
+            return;
+        }
+        
+        int vacancyTypeId;
+        
+        try {
+            vacancyTypeId = getVacancyTypeId(vacancyType);
+        } catch (SQLException ex) {
+            System.err.println("Unable to get vacancyType. See exception message below.\n" + ex);
+            return;
+        }
+        
+        try {
+            new Vacancy(referenceNumber, recruiterEnterpriseNr, description, closingDate, requiredQualifications, requiredSkills, vacancyTypeId).persist(dbManager);
+        } catch (SQLException ex) {
+            System.err.println("Unable to add vacancy " + referenceNumber + " to database. See exception message below.\n" + ex);
+            ex.printStackTrace();
+            response.sendError(500, "Unable to add vacancy to database.");
+            return;
+        }
+        
+        response.sendRedirect("vacancyAdded.jsp");
     }
 
     private String getParameter(String parameter, HttpServletRequest request) {
         return request.getParameter(parameter);
     }
+
+    private ArrayList createList() {
+        return new ArrayList<>();
+    }
     
+    private void addSessionAttribute(String name, Object attribute, HttpSession session){
+        session.setAttribute(name, attribute);
+    }
+    
+    private String[] getParameterValues(String parameter, HttpServletRequest request){
+        return request.getParameterValues(parameter);
+    }
+
+    private List<String> getRequiredQualificationTypes(HttpServletRequest request) {
+        String[] requiredQualifications = getParameterValues("requiredQualification", request);
+        
+        ArrayList<String> requiredQualificationsList = createList();
+        
+        requiredQualificationsList.addAll(Arrays.asList(requiredQualifications));
+        
+        return requiredQualificationsList;
+    }
+
+    private List<String> getRequiredCourses(HttpServletRequest request) {
+        String[] courses = getParameterValues("course", request);
+        
+        List<String> requiredCourses = createList();
+        
+        for (String course : courses){
+            if (! course.equalsIgnoreCase("null")){
+                requiredCourses.add(course);
+            }
+        }
+        
+        return requiredCourses;
+    }
+    
+    private Recruiter getRecruiter(HttpServletRequest request) throws SQLException{
+        String recruiter = getParameter("recruiter", request);
+        
+        if (recruiter.equalsIgnoreCase("newRecruiter")){
+            String enterpriseNr = getParameter("newRecruiterEnterpriseNr", request);
+            String name = getParameter("newRecruiterEnterpriseName", request);
+            String email = getParameter("newRecruiterEnterpriseEmail", request);
+            String phone = getParameter("newRecruiterEnterprisePhone", request);
+            
+            String query = "INSERT INTO recruiter VALUES(?,?,?,?)";
+            PreparedStatement ps = this.dbManager.getConnection().prepareStatement(query);
+            
+            ps.setString(1, enterpriseNr);
+            ps.setString(2, name);
+            ps.setString(3, email);
+            ps.setString(4, phone);
+            
+            ps.execute();
+            
+            return new Recruiter(name, email, phone, enterpriseNr);
+        }
+        
+        String query = "SELECT enterprise_nr FROM recruiter WHERE enterprise_name = \'" + recruiter + "\';";
+        
+        ResultSet rs = dbManager.executeQuery(query);
+        
+        rs.next();
+        
+        return new Recruiter(recruiter, null, null, dbManager.getData(RecruiterFields.ENTERPRISE_NR, rs));
+    }
+    
+    private List getRequiredQualifications(HttpServletRequest request){
+        List<String> requiredQualificationTypesList = getRequiredQualificationTypes(request);
+        List<String> requiredCoursesList = getRequiredCourses(request);
+        
+        List<Qualification> qualificationsList = createList();
+        
+        String nsc = ((List<String>)request.getSession().getAttribute("qualificationTypes")).get(0);
+        
+        if (requiredQualificationTypesList.contains(nsc)){
+            requiredCoursesList.add(requiredQualificationTypesList.indexOf(nsc), "Matric Subjects");
+        }
+        
+        for (int i = 0; i < requiredQualificationTypesList.size(); i++){
+            String type = requiredQualificationTypesList.get(i);
+            String course = requiredCoursesList.get(i);
+            
+            qualificationsList.add(new Qualification(type, course));
+        }
+        
+        return qualificationsList;
+    }
+    
+    private List getRequiredSkills(HttpServletRequest request) throws SQLException{
+        ArrayList<String> requiredSkills = createList();
+        
+        String[] skills = getParameterValues("requiredSkill", request);
+        
+        for (String skill : skills){
+            if (!skill.equalsIgnoreCase("otherSkill")){
+                requiredSkills.add(skill);
+            }else {
+                String[] newSkills = getParameter("newSkills", request).split("#");
+                requiredSkills.addAll(Arrays.asList(newSkills));
+                
+                for (String newSkill : newSkills){
+                    dbManager.executeUpdate("INSERT INTO skill(skill) VALUES(\'" + newSkill + "\');" );
+                }
+            }
+        }
+        
+        return requiredSkills;
+    }
+    
+    private Integer getVacancyTypeId(String vacancyType) throws SQLException{
+        ResultSet rs = dbManager.executeQuery("SELECT vacancy_type_id FROM vacancy_type WHERE vacancy_type = \'" + vacancyType + "\';");
+        rs.next();
+        
+        return rs.getInt("vacancy_type_id");
+    }
 }
