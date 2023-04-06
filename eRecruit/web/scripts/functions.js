@@ -5,7 +5,7 @@
 
 
 function getUserID(){
-    let userID = prompt("Enter your identity (ID) number");
+    let userID = prompt("Enter your identity (ID) numbers");
     
     while(userID.length !== 13){
         alert("Invalid ID number of " + userID.length + " digits.");
@@ -13,4 +13,6 @@ function getUserID(){
     }
     
     document.getElementById("deleteProfile").href = "DeleteProfileServlet?id=" + userID;
+    
 }
+

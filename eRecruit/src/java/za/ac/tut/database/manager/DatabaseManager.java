@@ -9,6 +9,7 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import za.ac.tut.enums.ApplicantFields;
 
 /**
  * This class is a database manager that allows an application to interact with a database using the JDBC framework
@@ -34,6 +35,8 @@ public class DatabaseManager {
         Class.forName("com.mysql.cj.jdbc.Driver");
         this.connection = DriverManager.getConnection(url, userName, password);
         this.statement = this.connection.createStatement();
+        
+        //jdbc:mysql://localhost:3306/recruitment_db?useSSL=false
     }
     
     /**
@@ -61,6 +64,10 @@ public class DatabaseManager {
      */
     public Connection getConnection() {
         return connection;
+    }
+    
+    public String getApplicantData(ApplicantFields field, ResultSet results) throws SQLException {
+        return (String) results.getObject(field.name().toLowerCase());
     }
     
 }

@@ -8,6 +8,22 @@
         <servlet-name>DeleteProfileServlet</servlet-name>
         <servlet-class>za.ac.tut.web.servlet.DeleteProfileServlet</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>UpdateProfileServlet</servlet-name>
+        <servlet-class>za.ac.tut.web.servlet.UpdateProfileServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>UpdateProServlet</servlet-name>
+        <servlet-class>za.ac.tut.web.servlet.UpdateProServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>DisplayServlet</servlet-name>
+        <servlet-class>za.ac.tut.web.servlet.DisplayServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>UpdateProTwoServlet</servlet-name>
+        <servlet-class>za.ac.tut.web.servlet.UpdateProTwoServlet</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>SessionManagerServlet</servlet-name>
         <url-pattern>/SessionManagerServlet</url-pattern>
@@ -15,6 +31,22 @@
     <servlet-mapping>
         <servlet-name>DeleteProfileServlet</servlet-name>
         <url-pattern>/DeleteProfileServlet</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>UpdateProfileServlet</servlet-name>
+        <url-pattern>/UpdateProfileServlet</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>UpdateProServlet</servlet-name>
+        <url-pattern>/UpdateProServlet.do</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>DisplayServlet</servlet-name>
+        <url-pattern>/DisplayServlet.do</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>UpdateProTwoServlet</servlet-name>
+        <url-pattern>/UpdateProTwoServlet.do</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>
