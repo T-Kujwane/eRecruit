@@ -20,7 +20,7 @@
         <%Applicant applicant = (Applicant) session.getAttribute("applicant");%>
 
         <form action="DeleteProfileServlet" method="POST">
-            <table>
+            <table style="border: black; size: 2px;">
                 <th>
                     <%= applicant.getFirstName() + "\t"%>
                     <%if (applicant.getMiddleName() != null) {%>
@@ -66,7 +66,9 @@
                     </td>
                 </tr>
                 <tr>
-                    <td colspan="2" style="text-align: right;"><input type="submit" value="Delete profile"></td>
+                    <td colspan="2" style="text-align: right;">
+                        <input type="submit" value="Cancel" formaction="index.html"><input type="submit" value="Delete profile">
+                    </td>
                 </tr>
             </table>
         </form>

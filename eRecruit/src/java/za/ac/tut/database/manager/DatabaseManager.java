@@ -45,16 +45,16 @@ public class DatabaseManager {
      * @return The ResultSet produced by the query
      * @throws SQLException 
      */
-    public ResultSet executeQuery(String sqlQuery) throws SQLException{
+    public synchronized ResultSet executeQuery(String sqlQuery) throws SQLException{
         return this.statement.executeQuery(sqlQuery);
     }
-    
+        
     /**
      * This method is invoked from an object of <strong>DatabaseManager</strong> to perform insert, update or delete queries on the database
      * @param sqlUpdate A complete SQL query in the form <code>INSERT INTO 'table'[otional: columns] VALUES(mandatory: values)</code>
      * @throws SQLException 
      */
-    public void executeUpdate(String sqlUpdate) throws SQLException{
+    public synchronized void executeUpdate(String sqlUpdate) throws SQLException{
         this.statement.executeUpdate(sqlUpdate);
     }
 
@@ -62,12 +62,30 @@ public class DatabaseManager {
      * This method gets the connection to the database that an object of this class has.
      * @return <code>java.sql.Connection</code>
      */
-    public Connection getConnection() {
+    public synchronized Connection getConnection() {
         return connection;
     }
     
     public String getApplicantData(ApplicantFields field, ResultSet results) throws SQLException {
         return (String) results.getObject(field.name().toLowerCase());
+    }
+
+    /**
+     * This method gets data from the <code>java.sql.ResultSet</code> in the column specified by the Enumeration
+     * @param fieldName The column from which the data must be retrieved.
+     * @param dataSet The result set from which the data must be retrieved
+     * @return The value in the form of a String
+     * @throws SQLException 
+     */
+    public String getData(Enum fieldName, ResultSet dataSet) throws SQLException{
+        String data;
+        
+        synchronized (dataSet) {
+            data = (String) dataSet.getObject(fieldName.name().toLowerCase());
+            dataSet.notifyAll();
+        }
+        
+        return data;
     }
     
 }

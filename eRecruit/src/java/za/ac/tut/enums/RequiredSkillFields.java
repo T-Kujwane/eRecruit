@@ -5,9 +5,9 @@
 package za.ac.tut.enums;
 
 /**
- * This enumeration contains the column names available to the applicant table
+ * This enumeration provides the column name available to the required skill fields table
  * @author T Kujwane
  */
-public enum ApplicantFields {
-    FIRST_NAME, MIDDLE_NAME, SURNAME, EMAIL_ADDRESS, PHONE_NR;
+public enum RequiredSkillFields {
+    ENTRY_ID, SKILL_ID, VACANCY_REFERENCE_NR;
 }

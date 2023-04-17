@@ -13,8 +13,16 @@
     </head>
     <body>
         <h1>Login</h1>
+        
         <p>
             Enter your credentials to login.
+            <form>
+                <table>
+                    <tr>
+                        <td>Username</td>
+                    </tr>
+                </table>
+            </form>
         </p>
     </body>
 </html>

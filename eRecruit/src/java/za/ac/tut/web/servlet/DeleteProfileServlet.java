@@ -7,8 +7,6 @@ package za.ac.tut.web.servlet;
 import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -69,6 +67,7 @@ public class DeleteProfileServlet extends HttpServlet {
                 String surname = getApplicantData(ApplicantFields.SURNAME, resultSet);
                 String emailAddress = getApplicantData(ApplicantFields.EMAIL_ADDRESS, resultSet);
                 String phoneNr = getApplicantData(ApplicantFields.PHONE_NR, resultSet);
+
                 applicant = new Applicant(applicantID, firstName, middleName, surname, phoneNr, emailAddress);
             } else {
                 response.sendRedirect("deleteError.jsp");
@@ -123,14 +122,11 @@ public class DeleteProfileServlet extends HttpServlet {
             System.err.println("Unable to delete applicant " + session.getAttribute("applicantID"));
             return;
         }
-        response.sendRedirect("confirmation.jsp");
+        response.sendRedirect("profileDeleteConfirmation.jsp");
     }
 
     private HttpSession getSession(HttpServletRequest request) {
         return request.getSession();
     }
 
-    private String getApplicantData(ApplicantFields field, ResultSet results) throws SQLException {
-        return (String) results.getObject(field.name().toLowerCase());
-    }
 }
