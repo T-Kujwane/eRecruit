@@ -6,18 +6,18 @@ package za.ac.tut.web.servlet;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 /**
  *
  * @author My HP
  */
-@WebServlet(name = "UpdateProfileServlet", urlPatterns = {"/UpdateProfileServlet"})
-public class UpdateProfileServlet extends HttpServlet {
+public class UpdateProServlet extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -36,10 +36,10 @@ public class UpdateProfileServlet extends HttpServlet {
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet UpdateProfileServlet</title>");            
+            out.println("<title>Servlet UpdateProServlet</title>");            
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Servlet UpdateProfileServlet at " + request.getContextPath() + "</h1>");
+            out.println("<h1>Servlet UpdateProServlet at " + request.getContextPath() + "</h1>");
             out.println("</body>");
             out.println("</html>");
         }
@@ -57,7 +57,13 @@ public class UpdateProfileServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response);
+        
+        
+        HttpSession session = request.getSession(true);
+        
+        RequestDispatcher disp = request.getRequestDispatcher("updateProfile.jsp");
+        disp.forward(request, response);
+        
     }
 
     /**
