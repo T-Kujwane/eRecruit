@@ -26,7 +26,7 @@ public class DeleteProfileServlet extends HttpServlet {
 
     public DeleteProfileServlet() throws ClassNotFoundException, SQLException {
         super();
-        this.dbManager = new DatabaseManager("jdbc:mysql://localhost:3306/recruitment_db?useSSL=false", "root", "root");
+        this.dbManager = new DatabaseManager("jdbc:mysql://localhost:3306/recruitment_db?useSSL=false", "root", "021121ZWELISHa_");
     }
 
     /**
@@ -61,15 +61,15 @@ public class DeleteProfileServlet extends HttpServlet {
         try {
             if (resultSet.isBeforeFirst()) {
                 resultSet.next();
-                
-                String firstName = dbManager.getData(ApplicantFields.FIRST_NAME, resultSet);
-                String middleName = dbManager.getData(ApplicantFields.MIDDLE_NAME, resultSet);
-                String surname = dbManager.getData(ApplicantFields.SURNAME, resultSet);
-                String emailAddress = dbManager.getData(ApplicantFields.EMAIL_ADDRESS, resultSet);
-                String phoneNr = dbManager.getData(ApplicantFields.PHONE_NR, resultSet);
+
+                String firstName = getApplicantData(ApplicantFields.FIRST_NAME, resultSet);
+                String middleName = getApplicantData(ApplicantFields.MIDDLE_NAME, resultSet);
+                String surname = getApplicantData(ApplicantFields.SURNAME, resultSet);
+                String emailAddress = getApplicantData(ApplicantFields.EMAIL_ADDRESS, resultSet);
+                String phoneNr = getApplicantData(ApplicantFields.PHONE_NR, resultSet);
 
                 applicant = new Applicant(applicantID, firstName, middleName, surname, phoneNr, emailAddress);
-            }else {
+            } else {
                 response.sendRedirect("deleteError.jsp");
                 return;
             }
@@ -98,7 +98,7 @@ public class DeleteProfileServlet extends HttpServlet {
 
         session.setAttribute("applicant", applicant);
 
-        response.sendRedirect("displayProfile.jsp");
+        response.sendRedirect("displayDetails.jsp");
     }
 
     /**
