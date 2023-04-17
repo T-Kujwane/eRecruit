@@ -45,7 +45,7 @@ public class DatabaseManager {
     public synchronized ResultSet executeQuery(String sqlQuery) throws SQLException{
         return this.statement.executeQuery(sqlQuery);
     }
-    
+        
     /**
      * This method is invoked from an object of <strong>DatabaseManager</strong> to perform insert, update or delete queries on the database
      * @param sqlUpdate A complete SQL query in the form <code>INSERT INTO 'table'[otional: columns] VALUES(mandatory: values)</code>

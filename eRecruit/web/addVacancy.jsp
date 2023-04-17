@@ -37,7 +37,9 @@
                 <tr>
                     <td>Vacancy type</td>
                     <td>
-                        <select name="vacancyType" onchange="addVacancyType()">
+                        
+                        <select id="vacancyTypeDropDown" name="vacancyType" onchange="addVacancyType()">
+                            <option value="null"></option>
                             <%for (String vacancyType : vacancyTypes) {%>
                             <option value="<%=vacancyType%>"><%=vacancyType%></option>
                             <%}%>
@@ -45,8 +47,11 @@
                             <option value="newVacancyType">Other</option>
                         </select>
                             
-                        <table id="addVacancyTypeTbl" >
-
+                        <table id="addVacancyTypeTbl" hidden="">
+                            <tr>
+                                <td>Vacancy</td>
+                                <td><input type="text" name="newVacancyType"></td>
+                            </tr>
                         </table>
                     </td>
                 </tr>
@@ -54,23 +59,6 @@
                 <tr>
                     <td>Required qualification(s)</td>
                     <td>
-                        <!--<%for (String qualificationType : qualificationTypes) {%>
-                        
-                        <input class="checkbox" type="checkbox" id="<%=qualificationType%>" name="requiredQualification" 
-                               value="<%=qualificationType%>" onclick="displayDropDown("<%=qualificationType%>")">
-                        
-                            <label class="checkbox" for="<%=qualificationType%>"> <%=qualificationType%></label>
-                            
-                            <%if (!qualificationType.contains("NSC")){%> in 
-                                <select  name="courseName" id="<%=qualificationType + "DropDown"%>" hidden="">
-                                    <%for (String course : courses) {%>
-                                        <option value="<%=course%>"><%=course%></option>
-                                    <%}%>
-                                </select>
-                            <%}%>
-                        
-                        <br/>
-                        <%}%>-->
                         
                         <%for (String qualificationType : qualificationTypes){%>
                         <%String attributeVal = qualificationType.replace(" ", "");%>
@@ -82,9 +70,11 @@
                             <%if (!qualificationType.contains("NSC")){%>
                             
                                 <select name="course" id="<%=attributeVal + "DropDown"%>" hidden="">
-                                    
+                                    <option value="null"></option>
                                     <%for (String course : courses){%>
-                                        <option value="<%=course%>"> <%=course%> </option>
+                                        <%if (!course.equalsIgnoreCase("Matric Subjects")){%>
+                                            <option value="<%=course%>"> <%=course%> </option>
+                                        <%}%>
                                     <%}%>
                                     
                                 </select>
@@ -111,7 +101,7 @@
                     <td>Recruiter</td>
                     <td>
                         <select name="recruiter" id="recruiterDropDown" onchange="getRecruiterAddForm()">
-                            
+                            <option value="null"></option>
                             <%for (String recruiter : recruiters){%>
                                 <option value="<%=recruiter%>"> <%=recruiter%> </option>
                             <%}%>
@@ -122,19 +112,19 @@
                         <table id="addRecruiterTbl" hidden="">
                             <tr>
                                 <td>Enterprise Number</td>
-                                <td><input name="newRecruiterEnterpriseNr" type="text" maxlength="30" required=""></td>
+                                <td><input name="newRecruiterEnterpriseNr" type="text" maxlength="30" ></td>
                             </tr>
                             <tr>
                                 <td>Enterprise Name</td>
-                                <td><input name="newRecruiterEnterpriseName" type="text" maxlength="50" required=""></td>
+                                <td><input name="newRecruiterEnterpriseName" type="text" maxlength="50" ></td>
                             </tr>
                             <tr>
                                 <td>Enterprise Email</td>
-                                <td><input name="newRecruiterEnterpriseEmail" type="text" maxlength="50" required=""></td>
+                                <td><input name="newRecruiterEnterpriseEmail" type="text" maxlength="50" ></td>
                             </tr>
                             <tr>
                                 <td>Enterprise Phone Number</td>
-                                <td><input name="newRecruiterEnterprisePhone" type="text" maxlength="10" required=""></td>
+                                <td><input name="newRecruiterEnterprisePhone" type="text" maxlength="10" ></td>
                             </tr>
                         </table>
                     </td>
@@ -142,20 +132,20 @@
                 
                 <tr>
                     <td>Required Skill(s)</td>
+                    
                     <td>
-                        
                         <%for (String skill : skills){%>
                             <%String skillValue = skill.replace(" ", "");%>
-                            <input type="checkbox" value="<%=skill%>" name="<%=skill%>" >
+                            <input type="checkbox" value="<%=skill%>" name="requiredSkill" >
                             <label for="<%=skillValue + "CheckBox"%>"> <%=skill%> </label>
                             <br/>
                         <%}%>
                         
-                        <input type="checkbox" id="noSkill" name="noSkill">
+                        <input type="checkbox" id="noSkill" value="noSkill" name="requiredSkill">
                         <label for="noSkill"> None </label>
                         <br/>
                         
-                        <input type="checkbox" id="otherSkillCheck" name="otherSkill" onclick="getAddSkillForm()">
+                        <input type="checkbox" id="otherSkillCheck" value="otherSkill" onclick="getAddSkillForm()" name="requiredSkill">
                         <label for="otherSkillCheck"> Other </label>
                         
                         <br/>
@@ -163,7 +153,7 @@
                         <table id="otherSkillInput" hidden="">
                             <tr>
                                 <td>Enter skill(s) (separated '#' if there are multiple skills)</td>
-                                <td><textarea name="otherSkills" cols="50" ></textarea></td>
+                                <td><textarea name="newSkills" cols="50" ></textarea></td>
                             </tr>
                         </table>
                     </td>

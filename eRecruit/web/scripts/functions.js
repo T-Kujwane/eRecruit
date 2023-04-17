@@ -4,52 +4,70 @@
  */
 
 
-function getUserID(){
+function getUserID() {
     let userID = prompt("Enter your identity (ID) number");
-    
-    while(userID.length !== 13){
+
+    while (userID.length !== 13) {
         alert("Invalid ID number of " + userID.length + " digits.");
         userID = prompt("Enter your identity (ID) number");
     }
-    
+
     document.getElementById("deleteProfile").href = "DeleteProfileServlet?id=" + userID;
 }
 
-function displayDropDown(elementID){
-    var checkBox = document.getElementById(elementID + "CheckBox");
+function addVacancyType(){
+    var dropDown = getElementById("vacancyTypeDropDown");
+    var addVacancyTable = getElementById("addVacancyTypeTbl");
     
-    if (checkBox.checked === true){
-        document.getElementById(elementID + "DropDown").hidden = false;
-    }else {
-        document.getElementById(elementID + "DropDown").hidden = true;
+    if (dropDown.value === "newVacancyType"){
+        show(addVacancyTable);
+    }else{
+        hide(addVacancyTable);
     }
 }
 
-function getRecruiterAddForm(){
-    
+function displayDropDown(elementID) {
+    if (!elementID.includes("NSC")){
+        var checkBox = document.getElementById(elementID + "CheckBox");
+
+        if (checkBox.checked === true) {
+            document.getElementById(elementID + "DropDown").hidden = false;
+        } else {
+            document.getElementById(elementID + "DropDown").hidden = true;
+        }
+    }
+}
+
+function getRecruiterAddForm() {
+
     var dropDown = document.getElementById("recruiterDropDown");
-    
-    if (dropDown.value === "newRecruiter"){
+
+    if (dropDown.value === "newRecruiter") {
         document.getElementById("addRecruiterTbl").hidden = false;
-    }else {
+    } else {
         document.getElementById("addRecruiterTbl").hidden = true;
     }
 }
 
-function getAddSkillForm(){
+function getAddSkillForm() {
     var checkBox = document.getElementById("otherSkillCheck");
-    
-    if (checkBox.checked === true){
+
+    if (checkBox.checked === true) {
         document.getElementById("otherSkillInput").hidden = false;
-    }else {
+    } else {
         document.getElementById("otherSkillInput").hidden = true;
     }
 }
 
-function hide(object){
+
+function getElementById(elementId){
+    return document.getElementById(elementId);
+}
+
+function hide(object) {
     object.hidden = true;
 }
 
-function show(object){
+function show(object) {
     object.hidden = false;
 }
