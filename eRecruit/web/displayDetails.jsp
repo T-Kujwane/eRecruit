@@ -46,7 +46,7 @@
 
                 <tr>
                     <td>Email address</td>
-                    <td><%=applicant.getEmail()%></td>
+                    <td><%=applicant.getEmailAddress()%></td>
                 </tr>
 
                 <tr>
@@ -55,7 +55,7 @@
                 </tr>
 
                 <tr>
-                    <%List<String> preferedVacancies = applicant.getPreferredVacancies();%>
+                    <%List<String> preferedVacancies = applicant.getPreferredVacancyTypes();%>
                     <td>Vacancies Looking For</td>
                     <td>
                         <ol>

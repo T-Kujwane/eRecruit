@@ -35,7 +35,7 @@
                 </tr></br>
                 <tr>
                     <td>Email:</td>
-                    <td><input type="text" name="email" value=<%=applicant.getEmail()%>></td>
+                    <td><input type="text" name="email" value=<%=applicant.getEmailAddress()%>></td>
                 </tr></br>
                 <tr>
                     <td>Phone number:</td>
