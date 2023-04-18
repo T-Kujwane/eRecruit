@@ -9,13 +9,14 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.List;
 import za.ac.tut.database.manager.DatabaseManager;
+import za.ac.tut.interfaces.Matchable;
 import za.ac.tut.qualification.Qualification;
 
 /**
  * This class models an object of vacancy
  * @author T Kujwane
  */
-public class Vacancy {
+public class Vacancy implements Matchable{
     private final String referenceNr, recruiterEnterpriseNr, description;
     private final Date closingDate;
     private final List<Qualification> requiredQualifications;
@@ -54,6 +55,10 @@ public class Vacancy {
 
     public List<String> getRequiredSkills() {
         return requiredSkills;
+    }
+
+    public Integer getVacancyTypeId() {
+        return vacancyTypeId;
     }
     
     public void persist(DatabaseManager dbManager) throws SQLException{

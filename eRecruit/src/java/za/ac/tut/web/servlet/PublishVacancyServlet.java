@@ -13,6 +13,10 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.ejb.EJB;
+import javax.mail.MessagingException;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -20,6 +24,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import za.ac.tut.application.Applicant;
 import za.ac.tut.database.manager.DatabaseManager;
+import za.ac.tut.ejb.EmailSessionBean;
 import za.ac.tut.enums.ApplicantFields;
 import za.ac.tut.enums.CourseFields;
 import za.ac.tut.enums.QualificationTypeFields;
@@ -38,8 +43,11 @@ import za.ac.tut.vacancy.Vacancy;
  */
 public class PublishVacancyServlet extends HttpServlet implements Matcher {
 
-    private final DatabaseManager dbManager;
+    @EJB
+    private EmailSessionBean emailSessionBean;
 
+    private final DatabaseManager dbManager;
+    
     public PublishVacancyServlet() throws ClassNotFoundException, SQLException {
         super();
         this.dbManager = new DatabaseManager("jdbc:mysql://localhost:3306/recruitment_db?useSSL=false", "root", "root");
@@ -217,12 +225,33 @@ public class PublishVacancyServlet extends HttpServlet implements Matcher {
             return;
         }
 
+        Vacancy newVacancy;
+
         try {
-            new Vacancy(referenceNumber, recruiterEnterpriseNr, description, closingDate, requiredQualifications, requiredSkills, vacancyTypeId).persist(dbManager);
+            newVacancy = new Vacancy(referenceNumber, recruiterEnterpriseNr, description, closingDate, requiredQualifications, requiredSkills, vacancyTypeId);
+            newVacancy.persist(dbManager);
         } catch (SQLException ex) {
             System.err.println("Unable to add vacancy " + referenceNumber + " to database. See exception message below.\n" + ex);
             ex.printStackTrace();
             response.sendError(500, "Unable to add vacancy to database.");
+            return;
+        }
+
+        try {
+            match(newVacancy);
+        } catch (SQLException ex) {
+            System.err.println("Unable to match applicants to vacancy. An SQL error has occured\n");
+            ex.printStackTrace();
+            response.sendError(500, "Unable to find qualifying applicants.");
+            return;
+        } catch (ClassNotFoundException ex) {
+            System.err.println("Unable to match applicants to vacancy. The argument type is unknown");
+            response.sendError(500, "Unable to match an entity of an unknown type.");
+            return;
+        } catch (MessagingException ex) {
+            System.err.println("Unable to send emails to qualifying applicants.");
+            ex.printStackTrace(System.err);
+            response.sendError(500, "An error has occured while trying to notify applicants.");
             return;
         }
 
@@ -327,15 +356,17 @@ public class PublishVacancyServlet extends HttpServlet implements Matcher {
 
         String[] skills = getParameterValues("requiredSkill", request);
 
-        for (String skill : skills) {
-            if (!skill.equalsIgnoreCase("otherSkill")) {
-                requiredSkills.add(skill);
-            } else {
-                String[] newSkills = getParameter("newSkills", request).split("#");
-                requiredSkills.addAll(Arrays.asList(newSkills));
+        if (skills != null) {
+            for (String skill : skills) {
+                if (!skill.equalsIgnoreCase("otherSkill")) {
+                    requiredSkills.add(skill);
+                } else {
+                    String[] newSkills = getParameter("newSkills", request).split("#");
+                    requiredSkills.addAll(Arrays.asList(newSkills));
 
-                for (String newSkill : newSkills) {
-                    dbManager.executeUpdate("INSERT INTO skill(skill) VALUES(\'" + newSkill + "\');");
+                    for (String newSkill : newSkills) {
+                        dbManager.executeUpdate("INSERT INTO skill(skill) VALUES(\'" + newSkill + "\');");
+                    }
                 }
             }
         }
@@ -351,7 +382,7 @@ public class PublishVacancyServlet extends HttpServlet implements Matcher {
     }
 
     @Override
-    public void match(Matchable entity) throws SQLException, ClassNotFoundException {
+    public void match(Matchable entity) throws SQLException, ClassNotFoundException, MessagingException {
 
         if (!(entity instanceof Vacancy)) {
             throw new IllegalArgumentException("Parsed entity is of an invalid type.");
@@ -359,11 +390,13 @@ public class PublishVacancyServlet extends HttpServlet implements Matcher {
 
         Vacancy vacancy = (Vacancy) entity;
 
-        ResultSet resultSet = dbManager.executeQuery("SELECT * FROM applicant;");
-
+        ResultSet resultSet = new DatabaseManager("jdbc:mysql://localhost:3306/recruitment_db?useSSL=false", "root", "root").executeQuery("SELECT * FROM applicant;");
+        List<String> applicantIds = createList();
+        
         List<Applicant> applicantsList = createList();
-
+        
         while (resultSet.next()) {
+            
             String id = dbManager.getData(ApplicantFields.APPLICANT_ID, resultSet);
             String firstName = dbManager.getData(ApplicantFields.FIRST_NAME, resultSet);
             String middleName = dbManager.getData(ApplicantFields.MIDDLE_NAME, resultSet);
@@ -395,13 +428,13 @@ public class PublishVacancyServlet extends HttpServlet implements Matcher {
                 }
             }
 
-            query = "SELECT vt.vacancy_type FROM vacancy_type vt, preferred_vacancy_type pvt WHERE pvt.vacancy_type_id = vt.vacancy_type_id AND pvt.applicant_id = \'" + id + "\';";
+            query = "SELECT vt.vacancy_type FROM vacancy_type vt, prefered_vacancy_type pvt WHERE pvt.vacancy_type_id = vt.vacancy_type_id AND pvt.applicant_id = \'" + id + "\';";
 
             tempResultSet = dbManager.executeQuery(query);
 
             if (hasData(tempResultSet)) {
                 while (tempResultSet.next()) {
-                    applicant.addPreferedVacancy(dbManager.getData(VacancyTypeFields.VACANCY_TYPE, resultSet));
+                    applicant.addPreferedVacancy(dbManager.getData(VacancyTypeFields.VACANCY_TYPE, tempResultSet));
                 }
             }
 
@@ -414,7 +447,7 @@ public class PublishVacancyServlet extends HttpServlet implements Matcher {
         String vacancyType = dbManager.getData(VacancyTypeFields.VACANCY_TYPE, resultSet);
 
         for (Applicant applicant : applicantsList) {
-
+            System.out.println(applicant.toString());
             boolean isInterestedInVacancyType = false;
 
             for (String applicantVacancyType : applicant.getPreferredVacancyTypes()) {
@@ -447,14 +480,15 @@ public class PublishVacancyServlet extends HttpServlet implements Matcher {
                 }
             }
 
-            if (possessedRequiredSkillsCount == vacancy.getRequiredSkills().size()) {
+            if (possessedRequiredSkillsCount >= vacancy.getRequiredSkills().size()) {
                 hasRequiredSkills = true;
             }
 
-            if (hasRequiredQualification && hasRequiredSkills && isInterestedInVacancyType) {
+            if (hasRequiredQualification && isInterestedInVacancyType && hasRequiredSkills) {
                 LocalDate now = LocalDate.now();
-                String query = "INSERT INTO qualifying_applicant (vacancy_ref_nr, applicant_id, qualifying_date) VALUES(\'" + vacancy.getReferenceNr()
-                        + "\',\'" + applicant.getApplicantID() + "\'," + new Date(now.getYear(), now.getMonthValue(), now.getDayOfMonth()) + ";";
+                String query = "INSERT INTO qualifying_applicant (vacancy_reference_nr, applicant_id, date_qualified) VALUES(\'" + vacancy.getReferenceNr()
+                        + "\',\'" + applicant.getApplicantID() + "\',STR_TO_DATE(\'" + now.toString() + "\', \'%Y-%c-%d\'));";
+                this.emailSessionBean.sendEmail(applicant.getEmailAddress(), "Application For Vacancy", "Your profile has been submited for a vacant post at " + vacancy.getRecruiterEnterpriseNr());
                 dbManager.executeUpdate(query);
             }
         }
@@ -463,5 +497,6 @@ public class PublishVacancyServlet extends HttpServlet implements Matcher {
     private boolean hasData(ResultSet rs) throws SQLException {
         return rs.isBeforeFirst();
     }
-
+    //System.err.println("Unable to send emails to qualifying applicant");
+                    //return;
 }
