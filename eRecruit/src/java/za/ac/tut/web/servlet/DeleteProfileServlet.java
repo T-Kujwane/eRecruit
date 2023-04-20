@@ -26,7 +26,7 @@ public class DeleteProfileServlet extends HttpServlet {
 
     public DeleteProfileServlet() throws ClassNotFoundException, SQLException {
         super();
-        this.dbManager = new DatabaseManager("jdbc:mysql://localhost:3306/recruitment_db?useSSL=false", "root", "021121ZWELISHa_");
+        this.dbManager = new DatabaseManager();
     }
 
     /**
@@ -99,7 +99,7 @@ public class DeleteProfileServlet extends HttpServlet {
 
         session.setAttribute("applicant", applicant);
 
-        response.sendRedirect("displayDetails.jsp");
+        response.sendRedirect("displayProfile.jsp");
     }
 
     /**

@@ -6,6 +6,7 @@ package za.ac.tut.database.manager;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -40,6 +41,15 @@ public class DatabaseManager {
     }
     
     /**
+     * This is the default constructor for a database manager object
+     * @throws ClassNotFoundException
+     * @throws SQLException 
+     */
+    public DatabaseManager() throws ClassNotFoundException, SQLException{
+        this("jdbc:mysql://localhost:3306/recruitment_db?useSSL=false", "root", "root");
+    }
+    
+    /**
      * This method is invoked from an object of <strong>DatabaseManager</strong> to perform a query on the database. <br>
      * @param sqlQuery An SQL query statement in the form <code>SELECT 'column(s)' FROM 'table(s)' WHERE 'condition(s)'</code>
      * @return The ResultSet produced by the query
@@ -56,14 +66,6 @@ public class DatabaseManager {
      */
     public synchronized void executeUpdate(String sqlUpdate) throws SQLException{
         this.statement.executeUpdate(sqlUpdate);
-    }
-
-    /**
-     * This method gets the connection to the database that an object of this class has.
-     * @return <code>java.sql.Connection</code>
-     */
-    public synchronized Connection getConnection() {
-        return connection;
     }
     
     public String getApplicantData(ApplicantFields field, ResultSet results) throws SQLException {
@@ -88,4 +90,17 @@ public class DatabaseManager {
         return data;
     }
     
+    public PreparedStatement prepareStatement(String sql) throws SQLException{
+        return this.connection.prepareStatement(sql);
+    }
+    
+    public boolean hasData(ResultSet rs) throws SQLException {
+        return rs.isBeforeFirst();
+    }
+    
+    public ResultSet moveCursor(ResultSet rs) throws SQLException{
+        rs.next();
+        
+        return rs;
+    }
 }

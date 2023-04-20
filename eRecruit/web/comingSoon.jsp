@@ -10,6 +10,7 @@
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <title><%=session.getAttribute("pageTitle")%></title>
+        <link rel="stylesheet" type="text/css" href="styles/primaryStyles.css"/>
     </head>
     <body>
         <h1><%=session.getAttribute("pageHeader")%></h1>

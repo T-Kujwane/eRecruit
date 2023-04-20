@@ -12,6 +12,7 @@
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <title>User Profile</title>
+        <link rel="stylesheet" type="text/css" href="styles/primaryStyles.css"/>
     </head>
     <body>
         <header>
@@ -20,8 +21,8 @@
         <%Applicant applicant = (Applicant) session.getAttribute("applicant");%>
 
         <form action="DeleteProfileServlet" method="POST">
-            <table style="border: black; size: 2px;">
-                <th>
+            <table>
+                <th colspan="2">
                     <%= applicant.getFirstName() + "\t"%>
                     <%if (applicant.getMiddleName() != null) {%>
                     <%=applicant.getMiddleName() + "\t"%>
@@ -46,7 +47,7 @@
 
                 <tr>
                     <td>Email address</td>
-                    <td><%=applicant.getEmail()%></td>
+                    <td><%=applicant.getEmailAddress()%></td>
                 </tr>
 
                 <tr>
@@ -55,7 +56,7 @@
                 </tr>
 
                 <tr>
-                    <%List<String> preferedVacancies = applicant.getPreferredVacancies();%>
+                    <%List<String> preferedVacancies = applicant.getPreferredVacancyTypes();%>
                     <td>Vacancies Looking For</td>
                     <td>
                         <ol>
@@ -66,7 +67,7 @@
                     </td>
                 </tr>
                 <tr>
-                    <td colspan="2" style="text-align: right;">
+                    <td colspan="2" class="submitBtn">
                         <input type="submit" value="Cancel" formaction="index.html"><input type="submit" value="Delete profile">
                     </td>
                 </tr>

@@ -4,7 +4,6 @@
  */
 package za.ac.tut.ejb;
 
-import java.time.LocalDate;
 import java.util.Properties;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
@@ -25,22 +24,37 @@ import javax.mail.internet.MimeMessage;
 @LocalBean
 public class EmailSessionBean {
 
-    private final int port = 587;
-    private final String host = "smtp-mail.outlook.com";
-    private final String sender = "developer.tk_kujwane@outlook.com";
-    private final boolean mustAuthenticate = false;
-    private final String username = this.sender;
-    private final String password = "outlook.getPassword()";
-    private final String protocol = "SMTP";
-    private final boolean debug = true;
+    private final int port;
+    private final String host;
+    private final String sender;
+    private final boolean mustAuthenticate;
+    private final String username;
+    private final String password;
+    private final String protocol;
+    private final boolean debug;
 
-    public void sendEmail(String to, String subject, String body) throws MessagingException {
+    public EmailSessionBean() {
+        port = 587;
+        host = "smtp-mail.outlook.com";
+        sender = "developer.tk_kujwane@outlook.com";
+        mustAuthenticate = true;
+        username = this.sender;
+        password = "outlook.getPassword()";
+        protocol = "SMTP";
+        debug = true;
+    }
+    
+    public synchronized void sendEmail(String to, String subject, String body) throws MessagingException {
         Properties props = new Properties();
+        
+        props.put("mail.smtp.auth", true);
         props.put("mail.smtp.host", host);
         props.put("mail.smtp.port", port);
-        props.put("mail.smtp.ssl.enable", true);
-
+        props.put("mail.smtp.starttls.enable", true);
+        props.put("mail.smtp.ssl.enable", false);
+        props.put("mail.smtp.socketFactory.fallback", true);
         Authenticator authenticator = null;
+        
         if (mustAuthenticate) {
             props.put("mail.smtp.auth", true);
             authenticator = new Authenticator() {
@@ -65,7 +79,7 @@ public class EmailSessionBean {
         message.setSentDate(new java.util.Date());
         message.setText(body);
         Transport.send(message);
-
+        
     }
 
     // Add business logic below. (Right-click in editor and choose

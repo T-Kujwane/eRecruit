@@ -5,6 +5,7 @@
 package za.ac.tut.interfaces;
 
 import java.sql.SQLException;
+import java.util.List;
 import javax.mail.MessagingException;
 
 /**
@@ -12,5 +13,5 @@ import javax.mail.MessagingException;
  * @author T Kujwane
  */
 public interface Matcher {
-    void match(Matchable entity) throws SQLException, ClassNotFoundException, MessagingException;
+    List match(Matchable entity) throws SQLException, ClassNotFoundException;
 }

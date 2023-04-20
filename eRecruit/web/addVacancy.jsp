@@ -15,7 +15,7 @@
         <link rel="stylesheet" type="text/css" href="styles/primaryStyles.css">
     </head>
     <body>
-        <h1>Vacancy Pushing Page</h1>
+        <h1>Vacancy Publishing Page</h1>
         <%
             List<String> vacancyTypes = (List<String>) session.getAttribute("vacancyTypes");
             List<String> qualificationTypes = (List<String>) session.getAttribute("qualificationTypes");
@@ -70,7 +70,7 @@
                             <%if (!qualificationType.contains("NSC")){%>
                             
                                 <select name="course" id="<%=attributeVal + "DropDown"%>" hidden="">
-                                    <option value="null"></option>
+                                    <option value="null">Choose a course</option>
                                     <%for (String course : courses){%>
                                         <%if (!course.equalsIgnoreCase("Matric Subjects")){%>
                                             <option value="<%=course%>"> <%=course%> </option>
@@ -161,7 +161,7 @@
                 </tr>
                 
                 <tr>
-                    <td colspan="2" style="text-align: right;"><input type="submit" value="Publish"></td>
+                    <td colspan="2" class="submitBtn"><input type="submit" value="Publish"></td>
                 </tr>
             </table>
         </form>
