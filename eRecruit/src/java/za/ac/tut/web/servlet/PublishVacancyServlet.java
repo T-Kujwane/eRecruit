@@ -24,6 +24,7 @@ import za.ac.tut.application.Applicant;
 import za.ac.tut.database.manager.DatabaseManager;
 import za.ac.tut.ejb.EmailSessionBean;
 import za.ac.tut.enums.RecruiterFields;
+import za.ac.tut.enums.VacancyTypeFields;
 import za.ac.tut.exception.VacancyExistsException;
 import za.ac.tut.handler.ApplicantHandler;
 import za.ac.tut.handler.QualificationHandler;
@@ -55,8 +56,8 @@ public class PublishVacancyServlet extends HttpServlet {
         this.emailSessionBean = new EmailSessionBean();
         this.applicantHandler = new ApplicantHandler(this.dbManager, this.emailSessionBean);
         this.vacancyHandler = new VacancyHandler(this.dbManager, this.emailSessionBean);
-        this.qualificationHandler = new QualificationHandler(dbManager, emailSessionBean);
-        this.skillHandler = new SkillHandler(dbManager, emailSessionBean);
+        this.qualificationHandler = new QualificationHandler(dbManager);
+        this.skillHandler = new SkillHandler(dbManager);
     }
 
     /**
@@ -226,6 +227,38 @@ public class PublishVacancyServlet extends HttpServlet {
             }
         }
 
+        if (!matchingApplicantsList.isEmpty()) {
+            for (Applicant matchedApplicant : matchingApplicantsList) {
+                System.out.println("Notifying " + matchedApplicant.getEmailAddress() + " of the vacancy " + newVacancy.getReferenceNr() + " from " + newVacancy.getPostingRecruiter().getEnterpriseName());
+                try {
+                    this.applicantHandler.notify(matchedApplicant.getEmailAddress(), "Vacancy Application", 
+                                    "Your profile has been submited for a vacant post application at " + newVacancy.getPostingRecruiter().getEnterpriseName() + ".\n" + 
+                                    "The post for which you have been identified as a potential candidate has the following details.\n" + 
+                                    "Company: " + newVacancy.getPostingRecruiter().getEnterpriseName() + "\n" + 
+                                    "Vacancy type: " + 
+                                            dbManager.getData(VacancyTypeFields.VACANCY_TYPE, 
+                                                    dbManager.moveCursor(dbManager.executeQuery("SELECT vacancy_type FROM vacancy_type WHERE vacancy_type_id = " + newVacancy.getVacancyTypeId() + ";"))
+                                            ) + "\n" +
+                                    "Vacancy reference number: " + newVacancy.getReferenceNr() +"\n" + 
+                                    "Vacancy description: " + newVacancy.getDescription() + "\n\n" + 
+                                    "For more enquiries, please email " + newVacancy.getPostingRecruiter().getEnterpriseName() + " at " + newVacancy.getPostingRecruiter().getEnterpriseEmail() + ".\n" +
+                                    "This email was automatically sent by the eRecruit system. Please log on to the system to perform various actions.\n" + 
+                                    "The eRecruit team wishes you the best of luck on your endeavors.\n\n" + 
+                                    "Regards,\nThe eRecruit Team");
+                } catch (MessagingException ex) {
+                    System.err.println("Unable to send emails to qualifying applicants.");
+                    ex.printStackTrace(System.err);
+                    response.sendError(500, "An error has occured while trying to notify applicants.");
+                    return;
+                } catch (SQLException ex) {
+                    System.err.println("An error has occured while trying to get the vacancy type from the database.");
+                    ex.printStackTrace(System.err);
+                    response.sendError(500, "Unable to get vacancy type from database when notifying applicant.");
+                    return;
+                }
+            }
+        }
+        
         response.sendRedirect("vacancyAdded.jsp");
     }
 
