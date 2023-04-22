@@ -5,17 +5,15 @@
 package za.ac.tut.web.servlet;
 
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.function.Predicate;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.ejb.EJB;
 import javax.inject.Inject;
+import javax.mail.MessagingException;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -24,13 +22,13 @@ import javax.servlet.http.HttpSession;
 import za.ac.tut.application.Applicant;
 import za.ac.tut.database.manager.DatabaseManager;
 import za.ac.tut.ejb.EmailSessionBean;
-import za.ac.tut.enums.RecruiterFields;
 import za.ac.tut.exception.ApplicantExistsException;
 import za.ac.tut.handler.ApplicantHandler;
 import za.ac.tut.handler.QualificationHandler;
 import za.ac.tut.handler.SkillHandler;
 import za.ac.tut.handler.VacancyHandler;
 import za.ac.tut.qualification.Qualification;
+import za.ac.tut.vacancy.Vacancy;
 
 /**
  *
@@ -53,8 +51,8 @@ public class ApplicationServlet extends HttpServlet {
         this.emailSessionBean = new EmailSessionBean();
         this.applicantHandler = new ApplicantHandler(this.dbManager, this.emailSessionBean);
         this.vacancyHandler = new VacancyHandler(this.dbManager, this.emailSessionBean);
-        this.qualificationHandler = new QualificationHandler(dbManager, emailSessionBean);
-        this.skillHandler = new SkillHandler(dbManager, emailSessionBean);
+        this.qualificationHandler = new QualificationHandler(dbManager);
+        this.skillHandler = new SkillHandler(dbManager);
     }
     
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
@@ -131,9 +129,9 @@ public class ApplicationServlet extends HttpServlet {
         
         List<Qualification> applicantQualifications = getApplicantQualifications(request);
         
-        newApplicant.getApplicantQualifications().addAll(applicantQualifications);
-        
-        newApplicant.getSkills().addAll(getApplicantSkills(request));
+        if (getParameterValues("applicantSkills", request) != null){
+            newApplicant.getSkills().addAll(getApplicantSkills(request));
+        }
         
         newApplicant.getPreferredVacancyTypes().addAll(getApplicantPreferredVacancyTypes(request));
         
@@ -149,8 +147,10 @@ public class ApplicationServlet extends HttpServlet {
             return;
         }
         
+        List<Vacancy> matchedVacancies;
+        
         try {
-            this.applicantHandler.match(newApplicant);
+           matchedVacancies =  this.applicantHandler.match(newApplicant);
         } catch (SQLException ex) {
             System.err.println("Unable to find vacancies matching applicant due to an SQL error.\n" + ex);
             return;
@@ -159,6 +159,23 @@ public class ApplicationServlet extends HttpServlet {
             return;
         }
         
+        if (matchedVacancies != null){
+            for (Vacancy matchedVacancy : matchedVacancies){
+                try {
+                    this.applicantHandler.notifyApplicant(newApplicant, matchedVacancy);
+                } catch (SQLException ex) {
+                    System.out.println("A dataabse error has occured.");
+                    response.sendError(500, "A database error has occured.");
+                    ex.printStackTrace(System.err);
+                    return;
+                } catch (MessagingException ex) {
+                    System.err.println("An error has occured while trying to send notifications.");
+                    ex.printStackTrace(System.err);
+                    response.sendError(500, "The system is unable to you notifications due to a server error.");
+                    return;
+                }
+            }
+        }
         response.sendRedirect("profileCreated.jsp");
     }
     

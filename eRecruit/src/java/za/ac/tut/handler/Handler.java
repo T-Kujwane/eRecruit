@@ -34,23 +34,14 @@ public abstract class Handler {
 
     private final DatabaseManager dbManager;
 
-    @EJB
-    private EmailSessionBean emailSessionBean;
-
-    public Handler(DatabaseManager dbManager, EmailSessionBean emailSessionBean) throws ClassNotFoundException, SQLException {
+    public Handler(DatabaseManager dbManager) throws ClassNotFoundException, SQLException {
         this.dbManager = dbManager;
-        this.emailSessionBean = emailSessionBean;
     }
 
     public DatabaseManager getDatabaseManager() {
         return dbManager;
     }
-
-    public synchronized void notify(String emailAddress, String subject, String message) throws MessagingException {
-        System.out.println("The value for emailSessionBean is: " + emailSessionBean);
-        emailSessionBean.sendEmail(emailAddress, subject, message);
-    }
-
+    
     protected List<Applicant> getAllApplicants() throws SQLException, ClassNotFoundException {
         List<Applicant> applicantsList = new ArrayList<>();
 
@@ -161,7 +152,7 @@ public abstract class Handler {
 
                 if (getDatabaseManager().hasData(tempResultSet)) {
                     while (tempResultSet.next()) {
-                        qualificationTypesList.add(getDatabaseManager().getData(QualificationTypeFields.TYPE_NAME, results));
+                        qualificationTypesList.add(getStringData(1, results));
                     }
                 }
 
@@ -170,7 +161,7 @@ public abstract class Handler {
 
                 if (getDatabaseManager().hasData(tempResultSet)) {
                     while (tempResultSet.next()) {
-                        courseList.add(getDatabaseManager().getData(CourseFields.COURSE_NAME, results));
+                        courseList.add(getStringData(1, results));
                     }
                 }
 
@@ -198,5 +189,13 @@ public abstract class Handler {
         String query = "INSERT INTO qualifying_applicant (vacancy_reference_nr, applicant_id, date_qualified) VALUES(\'" + qualifiedVacancy.getReferenceNr()
                 + "\',\'" + qualifyingApplicant.getApplicantID() + "\',STR_TO_DATE(\'" + LocalDate.now().toString() + "\', \'%Y-%c-%d\'));";
         executeUpdate(query);
+    }
+    
+    protected String getStringData(Enum columnName, ResultSet queryResults) throws SQLException{
+        return this.dbManager.getData(columnName, queryResults);
+    }
+    
+    protected String getStringData(int columnIndex, ResultSet queryResult) throws SQLException{
+        return queryResult.getString(columnIndex);
     }
 }

@@ -4,16 +4,17 @@
  */
 package za.ac.tut.handler;
 
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import za.ac.tut.application.Applicant;
 import za.ac.tut.database.manager.DatabaseManager;
 import za.ac.tut.ejb.EmailSessionBean;
 import za.ac.tut.enums.ApplicantFields;
+import za.ac.tut.enums.VacancyFields;
 import za.ac.tut.enums.VacancyTypeFields;
 import za.ac.tut.exception.VacancyExistsException;
 import za.ac.tut.interfaces.Matchable;
@@ -25,7 +26,7 @@ import za.ac.tut.vacancy.Vacancy;
  *
  * @author T Kujwane
  */
-public class VacancyHandler extends Handler implements Matcher {
+public class VacancyHandler extends NotificationHandler implements Matcher {
 
     public VacancyHandler(DatabaseManager dbManager, EmailSessionBean emailBean) throws ClassNotFoundException, SQLException {
         super(dbManager, emailBean);
@@ -145,7 +146,7 @@ public class VacancyHandler extends Handler implements Matcher {
 
         String query = "SELECT " + VacancyTypeFields.VACANCY_TYPE.name() + " FROM vacancy_type;";
 
-        ResultSet results = getDatabaseManager().executeQuery(query);
+        ResultSet results = executeQuery(query);
 
         if (getDatabaseManager().hasData(results)) {
             while (results.next()) {
@@ -155,6 +156,20 @@ public class VacancyHandler extends Handler implements Matcher {
 
         return vacancyTypesList;
     }
-
     
+    public List<Vacancy> getAllVacancies(String enterpriseNr) throws SQLException, ClassNotFoundException{
+        List<Vacancy> recruiterVacanciesList = new ArrayList<>();
+        
+        List<Vacancy> vacanciesList = super.getAllVacancies();
+        
+        if (!vacanciesList.isEmpty()){
+            for (Vacancy postedVacancy : vacanciesList){
+                if (postedVacancy.getPostingRecruiter().getEnterpriseNumber().equalsIgnoreCase(enterpriseNr)){
+                    recruiterVacanciesList.add(postedVacancy);
+                }
+            }
+        }
+        
+        return recruiterVacanciesList;
+    }
 }
