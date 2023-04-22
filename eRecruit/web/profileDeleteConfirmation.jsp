@@ -19,6 +19,9 @@
         <%Applicant applicant = (Applicant) session.getAttribute("applicant");%>
         
         <p>
+            <div class="recycleBinImg">
+                <img src="images/empty-recycle-bin.png" alt="recycle bin"/>
+            </div>
             We are sad to see you go <%=applicant.getFirstName()%>. Nonetheless, your profile has been deleted. <br/>
             Click <a href="index.html">here</a> to navigate back home.
         </p>
