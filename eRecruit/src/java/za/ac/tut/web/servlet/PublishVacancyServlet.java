@@ -9,10 +9,12 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import javax.ejb.EJB;
+import javax.inject.Inject;
+import javax.mail.MessagingException;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -20,14 +22,13 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import za.ac.tut.application.Applicant;
 import za.ac.tut.database.manager.DatabaseManager;
-import za.ac.tut.enums.ApplicantFields;
-import za.ac.tut.enums.CourseFields;
-import za.ac.tut.enums.QualificationTypeFields;
+import za.ac.tut.ejb.EmailSessionBean;
 import za.ac.tut.enums.RecruiterFields;
-import za.ac.tut.enums.SkillFields;
-import za.ac.tut.enums.VacancyTypeFields;
-import za.ac.tut.interfaces.Matchable;
-import za.ac.tut.interfaces.Matcher;
+import za.ac.tut.exception.VacancyExistsException;
+import za.ac.tut.handler.ApplicantHandler;
+import za.ac.tut.handler.QualificationHandler;
+import za.ac.tut.handler.SkillHandler;
+import za.ac.tut.handler.VacancyHandler;
 import za.ac.tut.qualification.Qualification;
 import za.ac.tut.recruiter.Recruiter;
 import za.ac.tut.vacancy.Vacancy;
@@ -36,13 +37,26 @@ import za.ac.tut.vacancy.Vacancy;
  *
  * @author T Kujwane
  */
-public class PublishVacancyServlet extends HttpServlet implements Matcher {
+public class PublishVacancyServlet extends HttpServlet {
 
     private final DatabaseManager dbManager;
+    private final ApplicantHandler applicantHandler;
+    private final VacancyHandler vacancyHandler;
+    private final QualificationHandler qualificationHandler;
+    private final SkillHandler skillHandler;
+    
+    @EJB
+    @Inject
+    private EmailSessionBean emailSessionBean;
 
     public PublishVacancyServlet() throws ClassNotFoundException, SQLException {
         super();
-        this.dbManager = new DatabaseManager("jdbc:mysql://localhost:3306/recruitment_db?useSSL=false", "root", "root");
+        this.dbManager = new DatabaseManager();
+        this.emailSessionBean = new EmailSessionBean();
+        this.applicantHandler = new ApplicantHandler(this.dbManager, this.emailSessionBean);
+        this.vacancyHandler = new VacancyHandler(this.dbManager, this.emailSessionBean);
+        this.qualificationHandler = new QualificationHandler(dbManager, emailSessionBean);
+        this.skillHandler = new SkillHandler(dbManager, emailSessionBean);
     }
 
     /**
@@ -58,72 +72,30 @@ public class PublishVacancyServlet extends HttpServlet implements Matcher {
             throws ServletException, IOException {
         HttpSession se = request.getSession();
 
-        String query = "SELECT " + VacancyTypeFields.VACANCY_TYPE.name() + " FROM vacancy_type;";
-        ResultSet resultSet;
-
         try {
-            resultSet = dbManager.executeQuery(query);
+            addSessionAttribute("vacancyTypes", this.vacancyHandler.getVacancyTypes(), se);
         } catch (SQLException ex) {
             System.err.println("Unable to get vacancy types in " + this.getClass().getSimpleName());
             return;
         }
-
+        
         try {
-            if (resultSet.isBeforeFirst()) {
-                List<String> valuesList = createList();
-                while (resultSet.next()) {
-                    String vacancyType = dbManager.getData(VacancyTypeFields.VACANCY_TYPE, resultSet);
-                    valuesList.add(vacancyType);
-                }
-                addSessionAttribute("vacancyTypes", valuesList, se);
-            }
-        } catch (SQLException ex) {
-            System.err.println("Unable to process result set in " + getClass().getSimpleName());
-        }
-
-        query = "SELECT type_name FROM qualification_type;";
-
-        try {
-            resultSet = dbManager.executeQuery(query);
+            addSessionAttribute("qualificationTypes", this.qualificationHandler.getQualificationTypes(), se);
         } catch (SQLException ex) {
             System.err.println("Unable to get qualification types.");
             return;
         }
 
         try {
-            if (resultSet.isBeforeFirst()) {
-                List<String> qualificationTypes = createList();
-                while (resultSet.next()) {
-                    qualificationTypes.add(dbManager.getData(QualificationTypeFields.TYPE_NAME, resultSet));
-                }
-                addSessionAttribute("qualificationTypes", qualificationTypes, se);
-            }
+            addSessionAttribute("courses", this.qualificationHandler.getCourses(), se);
         } catch (SQLException ex) {
-            System.err.println("Unable to get qualification types from result set");
-            return;
+            System.err.println("Unable to get courses.");
         }
-
-        query = "SELECT course_name FROM course;";
-
+        
+        ResultSet resultSet;
+        
         try {
-            resultSet = dbManager.executeQuery(query);
-        } catch (SQLException ex) {
-            System.err.println("Unable to get courses from db.");
-            return;
-        }
-
-        try {
-            List<String> coursesList = createList();
-            while (resultSet.next()) {
-                coursesList.add(dbManager.getData(CourseFields.COURSE_NAME, resultSet));
-            }
-            addSessionAttribute("courses", coursesList, se);
-        } catch (SQLException ex) {
-            System.err.println("Unable to get courses from result set.");
-        }
-
-        try {
-            query = "SELECT enterprise_name FROM recruiter;";
+            String query = "SELECT enterprise_name FROM recruiter;";
             resultSet = dbManager.executeQuery(query);
         } catch (SQLException ex) {
             System.err.println("Unable to get recruiters from db.");
@@ -142,25 +114,13 @@ public class PublishVacancyServlet extends HttpServlet implements Matcher {
             return;
         }
 
-        query = "SELECT skill FROM skill;";
-        try {
-            resultSet = dbManager.executeQuery(query);
+        try {   
+            addSessionAttribute("skills", this.skillHandler.getSkills(), se);
         } catch (SQLException ex) {
-            System.err.println("Unable to get skills from db.");
+            System.err.println("Unable to get skills.\n" + ex);
             return;
         }
-
-        try {
-            List<String> skillsList = createList();
-            while (resultSet.next()) {
-                skillsList.add(dbManager.getData(SkillFields.SKILL, resultSet));
-            }
-            addSessionAttribute("skills", skillsList, se);
-        } catch (SQLException ex) {
-            System.err.println("Unable to get skills from result set.");
-            return;
-        }
-
+        
         response.sendRedirect("addVacancy.jsp");
 
     }
@@ -176,8 +136,7 @@ public class PublishVacancyServlet extends HttpServlet implements Matcher {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        HttpSession session = request.getSession();
-
+        
         String referenceNumber = getParameter("referenceNr", request);
         String vacancyType = getParameter("vacancyType", request);
 
@@ -186,12 +145,11 @@ public class PublishVacancyServlet extends HttpServlet implements Matcher {
         String description = getParameter("description", request);
 
         List<Qualification> requiredQualifications = getRequiredQualifications(request);
-
-        String recruiterEnterpriseNr;
+        
+        Recruiter postingRecruiter;
 
         try {
-            Recruiter r = getRecruiter(request);
-            recruiterEnterpriseNr = r.getEnterpriseNumber();
+            postingRecruiter = getRecruiter(request);
         } catch (SQLException ex) {
             System.err.println("Unable to get recruiter. \n"
                     + "See the exception message below.\n" + ex.getMessage());
@@ -217,15 +175,89 @@ public class PublishVacancyServlet extends HttpServlet implements Matcher {
             return;
         }
 
+        Vacancy newVacancy;
+
         try {
-            new Vacancy(referenceNumber, recruiterEnterpriseNr, description, closingDate, requiredQualifications, requiredSkills, vacancyTypeId).persist(dbManager);
+            newVacancy = new Vacancy(referenceNumber, description, closingDate, requiredQualifications, requiredSkills, vacancyTypeId, postingRecruiter);
+            this.vacancyHandler.addVacancy(newVacancy);
         } catch (SQLException ex) {
+            System.err.println("Unable to add vacancy " + referenceNumber + " to database. Due to an SQL exception. See exception message below.\n" + ex);
+            ex.printStackTrace(System.err);
+            response.sendError(500, "Unable to add vacancy to database.");
+            return;
+        } catch (VacancyExistsException ex) {
             System.err.println("Unable to add vacancy " + referenceNumber + " to database. See exception message below.\n" + ex);
-            ex.printStackTrace();
+            ex.printStackTrace(System.err);
             response.sendError(500, "Unable to add vacancy to database.");
             return;
         }
 
+        List<Applicant> matchingApplicantsList;
+
+        try {
+            matchingApplicantsList = this.vacancyHandler.match(newVacancy);
+        } catch (SQLException ex) {
+            System.err.println("Unable to match applicants to vacancy. An SQL error has occured\n");
+            ex.printStackTrace(System.err);
+            response.sendError(500, "Unable to find qualifying applicants.");
+            return;
+        } catch (ClassNotFoundException ex) {
+            System.err.println("Unable to match applicants to vacancy. The argument type is unknown");
+            response.sendError(500, "Unable to match an entity of an unknown type.");
+            return;
+        }
+
+        if (!matchingApplicantsList.isEmpty()) {
+            for (Applicant matchedApplicant : matchingApplicantsList) {
+                System.out.println("Notifying " + matchedApplicant.getEmailAddress() + " of the vacancy " + newVacancy.getReferenceNr() + " from " + newVacancy.getPostingRecruiter().getEnterpriseName());
+                try {
+                    this.applicantHandler.notifyApplicant(matchedApplicant, newVacancy);
+                } catch (MessagingException ex) {
+                    System.err.println("Unable to send emails to qualifying applicants.");
+                    ex.printStackTrace(System.err);
+                    response.sendError(500, "An error has occured while trying to notify applicants.");
+                    return;
+                } catch (SQLException ex) {
+                    System.err.println("An error has occured while trying to get the vacancy type from the database.");
+                    ex.printStackTrace(System.err);
+                    response.sendError(500, "Unable to get vacancy type from database when notifying applicant.");
+                    return;
+                }
+            }
+        }
+
+        if (!matchingApplicantsList.isEmpty()) {
+            for (Applicant matchedApplicant : matchingApplicantsList) {
+                System.out.println("Notifying " + matchedApplicant.getEmailAddress() + " of the vacancy " + newVacancy.getReferenceNr() + " from " + newVacancy.getPostingRecruiter().getEnterpriseName());
+                try {
+                    this.applicantHandler.notify(matchedApplicant.getEmailAddress(), "Vacancy Application", 
+                                    "Your profile has been submited for a vacant post application at " + newVacancy.getPostingRecruiter().getEnterpriseName() + ".\n" + 
+                                    "The post for which you have been identified as a potential candidate has the following details.\n" + 
+                                    "Company: " + newVacancy.getPostingRecruiter().getEnterpriseName() + "\n" + 
+                                    "Vacancy type: " + 
+                                            dbManager.getData(VacancyTypeFields.VACANCY_TYPE, 
+                                                    dbManager.moveCursor(dbManager.executeQuery("SELECT vacancy_type FROM vacancy_type WHERE vacancy_type_id = " + newVacancy.getVacancyTypeId() + ";"))
+                                            ) + "\n" +
+                                    "Vacancy reference number: " + newVacancy.getReferenceNr() +"\n" + 
+                                    "Vacancy description: " + newVacancy.getDescription() + "\n\n" + 
+                                    "For more enquiries, please email " + newVacancy.getPostingRecruiter().getEnterpriseName() + " at " + newVacancy.getPostingRecruiter().getEnterpriseEmail() + ".\n" +
+                                    "This email was automatically sent by the eRecruit system. Please log on to the system to perform various actions.\n" + 
+                                    "The eRecruit team wishes you the best of luck on your endeavors.\n\n" + 
+                                    "Regards,\nThe eRecruit Team");
+                } catch (MessagingException ex) {
+                    System.err.println("Unable to send emails to qualifying applicants.");
+                    ex.printStackTrace(System.err);
+                    response.sendError(500, "An error has occured while trying to notify applicants.");
+                    return;
+                } catch (SQLException ex) {
+                    System.err.println("An error has occured while trying to get the vacancy type from the database.");
+                    ex.printStackTrace(System.err);
+                    response.sendError(500, "Unable to get vacancy type from database when notifying applicant.");
+                    return;
+                }
+            }
+        }
+        
         response.sendRedirect("vacancyAdded.jsp");
     }
 
@@ -279,7 +311,7 @@ public class PublishVacancyServlet extends HttpServlet implements Matcher {
             String phone = getParameter("newRecruiterEnterprisePhone", request);
 
             String query = "INSERT INTO recruiter VALUES(?,?,?,?)";
-            PreparedStatement ps = this.dbManager.getConnection().prepareStatement(query);
+            PreparedStatement ps = this.dbManager.prepareStatement(query);
 
             ps.setString(1, enterpriseNr);
             ps.setString(2, name);
@@ -291,13 +323,13 @@ public class PublishVacancyServlet extends HttpServlet implements Matcher {
             return new Recruiter(name, email, phone, enterpriseNr);
         }
 
-        String query = "SELECT enterprise_nr FROM recruiter WHERE enterprise_name = \'" + recruiter + "\';";
+        String query = "SELECT * FROM recruiter WHERE enterprise_name = \'" + recruiter + "\';";
 
         ResultSet rs = dbManager.executeQuery(query);
 
         rs.next();
 
-        return new Recruiter(recruiter, null, null, dbManager.getData(RecruiterFields.ENTERPRISE_NR, rs));
+        return new Recruiter(recruiter, dbManager.getData(RecruiterFields.ENTERPRISE_EMAIL, rs), dbManager.getData(RecruiterFields.ENTERPRISE_PHONE_NR, rs), dbManager.getData(RecruiterFields.ENTERPRISE_NR, rs));
     }
 
     private List getRequiredQualifications(HttpServletRequest request) {
@@ -327,15 +359,17 @@ public class PublishVacancyServlet extends HttpServlet implements Matcher {
 
         String[] skills = getParameterValues("requiredSkill", request);
 
-        for (String skill : skills) {
-            if (!skill.equalsIgnoreCase("otherSkill")) {
-                requiredSkills.add(skill);
-            } else {
-                String[] newSkills = getParameter("newSkills", request).split("#");
-                requiredSkills.addAll(Arrays.asList(newSkills));
+        if (skills != null) {
+            for (String skill : skills) {
+                if (!skill.equalsIgnoreCase("otherSkill")) {
+                    requiredSkills.add(skill);
+                } else {
+                    String[] newSkills = getParameter("newSkills", request).split("#");
+                    requiredSkills.addAll(Arrays.asList(newSkills));
 
-                for (String newSkill : newSkills) {
-                    dbManager.executeUpdate("INSERT INTO skill(skill) VALUES(\'" + newSkill + "\');");
+                    for (String newSkill : newSkills) {
+                        dbManager.executeUpdate("INSERT INTO skill(skill) VALUES(\'" + newSkill + "\');");
+                    }
                 }
             }
         }
@@ -350,118 +384,6 @@ public class PublishVacancyServlet extends HttpServlet implements Matcher {
         return rs.getInt("vacancy_type_id");
     }
 
-    @Override
-    public void match(Matchable entity) throws SQLException, ClassNotFoundException {
-
-        if (!(entity instanceof Vacancy)) {
-            throw new IllegalArgumentException("Parsed entity is of an invalid type.");
-        }
-
-        Vacancy vacancy = (Vacancy) entity;
-
-        ResultSet resultSet = dbManager.executeQuery("SELECT * FROM applicant;");
-
-        List<Applicant> applicantsList = createList();
-
-        while (resultSet.next()) {
-            String id = dbManager.getData(ApplicantFields.APPLICANT_ID, resultSet);
-            String firstName = dbManager.getData(ApplicantFields.FIRST_NAME, resultSet);
-            String middleName = dbManager.getData(ApplicantFields.MIDDLE_NAME, resultSet);
-            String surname = dbManager.getData(ApplicantFields.SURNAME, resultSet);
-            String emailAddress = dbManager.getData(ApplicantFields.EMAIL_ADDRESS, resultSet);
-            String phoneNr = dbManager.getData(ApplicantFields.PHONE_NR, resultSet);
-
-            Applicant applicant = new Applicant(id, firstName, middleName, surname, phoneNr, emailAddress);
-
-            String query = "SELECT s.skill FROM skill s, applicant_skill aps WHERE aps.skill_id = s.skill_id AND aps.applicant_id = \'" + id + "\';";
-            ResultSet tempResultSet = dbManager.executeQuery(query);
-
-            if (hasData(tempResultSet)) {
-                while (tempResultSet.next()) {
-                    applicant.addSkill(dbManager.getData(SkillFields.SKILL, tempResultSet));
-                }
-            }
-
-            query = "SELECT qt.type_name, c.course_name FROM qualification_type qt, course c, applicant_qualification apq WHERE apq.type_id = qt.type_id AND "
-                    + "apq.course_id = c.course_id AND apq.applicant_id = \'" + id + "\';";
-            tempResultSet = dbManager.executeQuery(query);
-
-            if (hasData(tempResultSet)) {
-                while (tempResultSet.next()) {
-                    String type = dbManager.getData(QualificationTypeFields.TYPE_NAME, tempResultSet);
-                    String course = dbManager.getData(CourseFields.COURSE_NAME, tempResultSet);
-
-                    applicant.addQualification(new Qualification(type, course));
-                }
-            }
-
-            query = "SELECT vt.vacancy_type FROM vacancy_type vt, preferred_vacancy_type pvt WHERE pvt.vacancy_type_id = vt.vacancy_type_id AND pvt.applicant_id = \'" + id + "\';";
-
-            tempResultSet = dbManager.executeQuery(query);
-
-            if (hasData(tempResultSet)) {
-                while (tempResultSet.next()) {
-                    applicant.addPreferedVacancy(dbManager.getData(VacancyTypeFields.VACANCY_TYPE, resultSet));
-                }
-            }
-
-            applicantsList.add(applicant);
-        }
-
-        resultSet = dbManager.executeQuery("SELECT vacancy_type FROM vacancy_type WHERE vacancy_type_id = " + vacancy.getVacancyTypeId() + ";");
-        resultSet.next();
-
-        String vacancyType = dbManager.getData(VacancyTypeFields.VACANCY_TYPE, resultSet);
-
-        for (Applicant applicant : applicantsList) {
-
-            boolean isInterestedInVacancyType = false;
-
-            for (String applicantVacancyType : applicant.getPreferredVacancyTypes()) {
-                if (applicantVacancyType.equalsIgnoreCase(vacancyType)) {
-                    isInterestedInVacancyType = true;
-                    break;
-                }
-            }
-
-            boolean hasRequiredQualification = false;
-
-            for (Qualification applicantQualification : applicant.getApplicantQualifications()) {
-                for (Qualification vacancyQualification : vacancy.getRequiredQualifications()) {
-                    if (applicantQualification.equals(vacancyQualification)) {
-                        hasRequiredQualification = true;
-                        break;
-                    }
-                }
-            }
-
-            boolean hasRequiredSkills = false;
-
-            int possessedRequiredSkillsCount = 0;
-
-            for (String applicantSkill : applicant.getSkills()) {
-                for (String vacancySkill : vacancy.getRequiredSkills()) {
-                    if (applicantSkill.equalsIgnoreCase(vacancySkill)) {
-                        possessedRequiredSkillsCount++;
-                    }
-                }
-            }
-
-            if (possessedRequiredSkillsCount == vacancy.getRequiredSkills().size()) {
-                hasRequiredSkills = true;
-            }
-
-            if (hasRequiredQualification && hasRequiredSkills && isInterestedInVacancyType) {
-                LocalDate now = LocalDate.now();
-                String query = "INSERT INTO qualifying_applicant (vacancy_ref_nr, applicant_id, qualifying_date) VALUES(\'" + vacancy.getReferenceNr()
-                        + "\',\'" + applicant.getApplicantID() + "\'," + new Date(now.getYear(), now.getMonthValue(), now.getDayOfMonth()) + ";";
-                dbManager.executeUpdate(query);
-            }
-        }
-    }
-
-    private boolean hasData(ResultSet rs) throws SQLException {
-        return rs.isBeforeFirst();
-    }
-
+    //System.err.println("Unable to send emails to qualifying applicant");
+    //return;
 }

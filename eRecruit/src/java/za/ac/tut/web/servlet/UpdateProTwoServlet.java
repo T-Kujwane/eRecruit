@@ -23,11 +23,11 @@ import za.ac.tut.database.manager.DatabaseManager;
  */
 public class UpdateProTwoServlet extends HttpServlet {
 
-    private DatabaseManager db;
+    final private DatabaseManager db;
     
     String url = "jdbc:mysql://localhost:3306/recruitment_db?useSSL=false";
     String userName  = "root";
-    String password = "021121ZWELISHa_";
+    String password = "root";
     
     public UpdateProTwoServlet()throws ClassNotFoundException,IOException, SQLException {
  

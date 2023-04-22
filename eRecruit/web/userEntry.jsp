@@ -11,6 +11,7 @@
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <title>User Entry Page</title>
+        <link rel="stylesheet" type="text/css" href="styles/primaryStyles.css"/>
     </head>
     <body>
         <h1>UPDATE DETAILS</h1>
@@ -35,7 +36,7 @@
                 </tr></br>
                 <tr>
                     <td>Email:</td>
-                    <td><input type="text" name="email" value=<%=applicant.getEmail()%>></td>
+                    <td><input type="text" name="email" value=<%=applicant.getEmailAddress()%>></td>
                 </tr></br>
                 <tr>
                     <td>Phone number:</td>

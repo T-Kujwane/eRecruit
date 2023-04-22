@@ -28,7 +28,7 @@ public class DisplayServlet extends HttpServlet {
     
     String url = "jdbc:mysql://localhost:3306/recruitment_db?useSSL=false";
     String userName  = "root";
-    String password = "021121ZWELISHa_";
+    String password = "root";
     
     public DisplayServlet() throws ClassNotFoundException,IOException, SQLException{
         
@@ -112,7 +112,7 @@ public class DisplayServlet extends HttpServlet {
             } else {
                 //response.sendRedirect("deleteError.jsp");
                 //RequestDispatcher disp = request.getRequestDispatcher("delete.jsp");
-                System.out.println("Error 1");
+                System.out.println("Error 1\n" + "Result set: " + resultSet);
                 return;
             }
         } catch (SQLException ex) {
