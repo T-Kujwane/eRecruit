@@ -19,8 +19,8 @@ import za.ac.tut.enums.QualificationTypeFields;
  */
 public class QualificationHandler extends Handler {
 
-    public QualificationHandler(DatabaseManager dbManager, EmailSessionBean emailSessionBean) throws ClassNotFoundException, SQLException {
-        super(dbManager, emailSessionBean);
+    public QualificationHandler(DatabaseManager dbManager) throws ClassNotFoundException, SQLException {
+        super(dbManager);
     }
 
     public List getQualificationTypes() throws SQLException {

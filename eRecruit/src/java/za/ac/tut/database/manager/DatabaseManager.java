@@ -90,7 +90,7 @@ public class DatabaseManager {
         return data;
     }
     
-    public PreparedStatement prepareStatement(String sql) throws SQLException{
+    public synchronized PreparedStatement prepareStatement(String sql) throws SQLException{
         return this.connection.prepareStatement(sql);
     }
     
@@ -99,7 +99,11 @@ public class DatabaseManager {
     }
     
     public ResultSet moveCursor(ResultSet rs) throws SQLException{
-        rs.next();
+        
+        synchronized (rs) {
+            rs.next();
+            rs.notifyAll();
+        }
         
         return rs;
     }

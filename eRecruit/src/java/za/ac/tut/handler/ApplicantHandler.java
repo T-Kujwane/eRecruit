@@ -4,7 +4,6 @@
  */
 package za.ac.tut.handler;
 
-import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -14,26 +13,19 @@ import javax.mail.MessagingException;
 import za.ac.tut.application.Applicant;
 import za.ac.tut.database.manager.DatabaseManager;
 import za.ac.tut.ejb.EmailSessionBean;
-import za.ac.tut.enums.CourseFields;
-import za.ac.tut.enums.QualificationTypeFields;
 import za.ac.tut.enums.QualifyingApplicantFields;
-import za.ac.tut.enums.RequiredQualificationFields;
-import za.ac.tut.enums.RequiredSkillFields;
-import za.ac.tut.enums.SkillFields;
-import za.ac.tut.enums.VacancyFields;
 import za.ac.tut.enums.VacancyTypeFields;
 import za.ac.tut.exception.ApplicantExistsException;
 import za.ac.tut.interfaces.Matchable;
 import za.ac.tut.interfaces.Matcher;
 import za.ac.tut.qualification.Qualification;
-import za.ac.tut.recruiter.Recruiter;
 import za.ac.tut.vacancy.Vacancy;
 
 /**
  *
  * @author T Kujwane
  */
-public class ApplicantHandler extends Handler implements Matcher {
+public class ApplicantHandler extends NotificationHandler implements Matcher {
 
     public ApplicantHandler(DatabaseManager dbManager, EmailSessionBean emailBean) throws ClassNotFoundException, SQLException {
         super(dbManager, emailBean);
@@ -164,5 +156,8 @@ public class ApplicantHandler extends Handler implements Matcher {
                 + "The eRecruit team wishes you the best of luck on your endeavors.\n\n"
                 + "Regards,\nThe eRecruit Team");
     }
-
+    
+    public Applicant getApplicant(String applicantID){
+        throw new UnsupportedOperationException("This functionality is not yet implemented");
+    }
 }
