@@ -24,6 +24,7 @@ import za.ac.tut.application.Applicant;
 import za.ac.tut.database.manager.DatabaseManager;
 import za.ac.tut.ejb.EmailSessionBean;
 import za.ac.tut.enums.RecruiterFields;
+import za.ac.tut.enums.VacancyTypeFields;
 import za.ac.tut.exception.VacancyExistsException;
 import za.ac.tut.handler.ApplicantHandler;
 import za.ac.tut.handler.QualificationHandler;
@@ -55,8 +56,8 @@ public class PublishVacancyServlet extends HttpServlet {
         this.emailSessionBean = new EmailSessionBean();
         this.applicantHandler = new ApplicantHandler(this.dbManager, this.emailSessionBean);
         this.vacancyHandler = new VacancyHandler(this.dbManager, this.emailSessionBean);
-        this.qualificationHandler = new QualificationHandler(dbManager, emailSessionBean);
-        this.skillHandler = new SkillHandler(dbManager, emailSessionBean);
+        this.qualificationHandler = new QualificationHandler(dbManager);
+        this.skillHandler = new SkillHandler(dbManager);
     }
 
     /**

@@ -22,7 +22,7 @@
         
           <form action="userEntry.jsp" method="POST">
             <table>
-                <th>
+                <th colspan="2">
                     <%= applicant.getFirstName() + "\t"%>
                     <%if (applicant.getMiddleName() != null) {%>
                     <%=applicant.getMiddleName() + "\t"%>
