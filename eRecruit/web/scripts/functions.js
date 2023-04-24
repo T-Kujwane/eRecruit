@@ -3,10 +3,10 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/JavaScript.js to edit this template
  */
 
-function getUserID(){
+function getUserID() {
     let userID = prompt("Enter your identity (ID) numbers");
-    
-    while(userID.length !== 13){
+
+    while (userID.length !== 13) {
 
         alert("Invalid ID number of " + userID.length + " digits.");
         userID = prompt("Enter your identity (ID) number");
@@ -16,19 +16,40 @@ function getUserID(){
 
 }
 
-function addVacancyType(){
+function getRecruiterEnterpriseNumber() {
+    let recruiterEnterpriseNr;
+
+    do {
+        recruiterEnterpriseNr = prompt("Enter your institution's enterprise number.");
+        if (recruiterEnterpriseNr === null) {
+            break;
+        } else {
+            if (Boolean(recruiterEnterpriseNr.length < 13)) {
+                alert("Invalid enterprise number. Try again.");
+            }
+        }
+    } while (Boolean(recruiterEnterpriseNr.length < 13));
+
+    if (recruiterEnterpriseNr === null) {
+        document.getElementById("getVacancyApplications").href = "index.html";
+    } else {
+        document.getElementById("getVacancyApplications").href = "GetVacancyApplicationsServlet?enterpriseNr=" + recruiterEnterpriseNr;
+    }
+}
+
+function addVacancyType() {
     var dropDown = getElementById("vacancyTypeDropDown");
     var addVacancyTable = getElementById("addVacancyTypeTbl");
-    
-    if (dropDown.value === "newVacancyType"){
+
+    if (dropDown.value === "newVacancyType") {
         show(addVacancyTable);
-    }else{
+    } else {
         hide(addVacancyTable);
     }
 }
 
 function displayDropDown(elementID) {
-    if (!elementID.includes("NSC")){
+    if (!elementID.includes("NSC")) {
         var checkBox = document.getElementById(elementID + "CheckBox");
 
         if (checkBox.checked === true) {
@@ -60,8 +81,7 @@ function getAddSkillForm() {
     }
 }
 
-
-function getElementById(elementId){
+function getElementById(elementId) {
     return document.getElementById(elementId);
 }
 

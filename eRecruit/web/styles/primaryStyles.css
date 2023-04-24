@@ -13,7 +13,7 @@ table, th, td{
 }
 
 textarea{
-    background-color: white;
+    background-color: bisque;
 }
 
 html{
@@ -45,12 +45,23 @@ th{
 
 input[type = "submit"]{
     width: 25%;
+    margin-left: 20px;
 }
 
-*.tickImg{
+input[type = "submit"]:hover{
+    background-color: orange;
+    border-color: background;
+    color: red;
+}
+
+.tickImg, .recycleBinImg{
     text-align: center;
 }
 
 a{
     color: orangered;
+}
+
+a:hover{
+    color: blue;
 }

@@ -18,8 +18,8 @@ import za.ac.tut.enums.SkillFields;
  */
 public class SkillHandler extends Handler {
 
-    public SkillHandler(DatabaseManager dbManager, EmailSessionBean emailSessionBean) throws ClassNotFoundException, SQLException {
-        super(dbManager, emailSessionBean);
+    public SkillHandler(DatabaseManager dbManager) throws ClassNotFoundException, SQLException {
+        super(dbManager);
     }
 
     public List getSkills() throws SQLException {
