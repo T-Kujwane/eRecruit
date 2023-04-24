@@ -5,9 +5,9 @@
 package za.ac.tut.enums;
 
 /**
- * This enumeration contains the column names available to the applicant table
+ * This enumeration contains the column names available to the vacancy type table
  * @author T Kujwane
  */
-public enum ApplicantFields {
-    FIRST_NAME, MIDDLE_NAME, SURNAME, EMAIL_ADDRESS, PHONE_NR, APPLICANT_ID;
+public enum VacancyTypeFields {
+    VACANCY_TYPE_ID, VACANCY_TYPE;
 }

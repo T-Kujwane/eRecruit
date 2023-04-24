@@ -8,9 +8,10 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit thi
         <title>Home Page</title>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" type="text/css" href="styles/primaryStyles.css"/>
     </head>
     <body>
-        <h1>e-Recruit Web Application</h1>
+        <h1>eRecruit Web Application</h1>
 
         <section>
 
@@ -24,7 +25,7 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit thi
                 Please use the navigation links below to perform various actions.
             </p>
             
-            <table style="background-color: orange;">
+            <table>
                 <tr>
                     <td>Applicant</td>
                     <td>Recruiter</td>
@@ -35,8 +36,8 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit thi
                         <nav id="applicant_navigations">
                             <ul>
                                 <li><a href="ApplicationServlet">Apply</a></li>
-                                <li><a href="GetApplicationsServlet">View Application History</a></li>
-                                <li><a href="UpdateProfileServlet">Update Profile</a></li>
+                                <li><a href="getUserInfo.html">View Application History</a></li>
+                                <li><a href="UpdateProServlet.do">Update Profile</a></li>
                                 <li><a id="deleteProfile" href="" onclick="getUserID()">Delete Profile</a></li>
                             </ul>
                         </nav>

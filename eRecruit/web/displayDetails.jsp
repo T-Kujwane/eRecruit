@@ -1,7 +1,7 @@
 <%-- 
-    Document   : displayProfile
-    Created on : 10 Mar 2023, 11:16:44
-    Author     : T Kujwane
+    Document   : displayDetails
+    Created on : 14 Mar 2023, 00:42:53
+    Author     : My HP
 --%>
 
 <%@page import="java.util.List"%>
@@ -11,18 +11,18 @@
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <title>User Profile</title>
+        <title>User Details</title>
         <link rel="stylesheet" type="text/css" href="styles/primaryStyles.css"/>
     </head>
     <body>
-        <header>
+         <header>
             <h1>Profile</h1>
         </header>
-        <%Applicant applicant = (Applicant) session.getAttribute("applicant");%>
-
-        <form action="DeleteProfileServlet" method="POST">
+          <%Applicant applicant = (Applicant) session.getAttribute("applicant");%>
+        
+          <form action="userEntry.jsp" method="POST">
             <table>
-                <th colspan="2">
+                <th>
                     <%= applicant.getFirstName() + "\t"%>
                     <%if (applicant.getMiddleName() != null) {%>
                     <%=applicant.getMiddleName() + "\t"%>
@@ -67,12 +67,11 @@
                     </td>
                 </tr>
                 <tr>
-                    <td colspan="2" class="submitBtn">
-                        <input type="submit" value="Cancel" formaction="index.html"><input type="submit" value="Delete profile">
-                    </td>
+                    <td></td>
+                    <td><input type="submit" value="UPDATE DETAILS"></td>
                 </tr>
             </table>
         </form>
-
+                        
     </body>
 </html>

@@ -7,8 +7,6 @@ package za.ac.tut.web.servlet;
 import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -28,7 +26,7 @@ public class DeleteProfileServlet extends HttpServlet {
 
     public DeleteProfileServlet() throws ClassNotFoundException, SQLException {
         super();
-        this.dbManager = new DatabaseManager("jdbc:mysql://localhost:3306/recruitment_db?useSSL=false", "root", "root");
+        this.dbManager = new DatabaseManager();
     }
 
     /**
@@ -63,19 +61,21 @@ public class DeleteProfileServlet extends HttpServlet {
         try {
             if (resultSet.isBeforeFirst()) {
                 resultSet.next();
-                
-                String firstName = getApplicantData(ApplicantFields.FIRST_NAME, resultSet);
-                String middleName = getApplicantData(ApplicantFields.MIDDLE_NAME, resultSet);
-                String surname = getApplicantData(ApplicantFields.SURNAME, resultSet);
-                String emailAddress = getApplicantData(ApplicantFields.EMAIL_ADDRESS, resultSet);
-                String phoneNr = getApplicantData(ApplicantFields.PHONE_NR, resultSet);
+
+                String firstName = dbManager.getApplicantData(ApplicantFields.FIRST_NAME, resultSet);
+                String middleName = dbManager.getApplicantData(ApplicantFields.MIDDLE_NAME, resultSet);
+                String surname = dbManager.getApplicantData(ApplicantFields.SURNAME, resultSet);
+                String emailAddress = dbManager.getApplicantData(ApplicantFields.EMAIL_ADDRESS, resultSet);
+                String phoneNr = dbManager.getApplicantData(ApplicantFields.PHONE_NR, resultSet);
+
                 applicant = new Applicant(applicantID, firstName, middleName, surname, phoneNr, emailAddress);
-            }else {
+            } else {
                 response.sendRedirect("deleteError.jsp");
                 return;
             }
         } catch (SQLException ex) {
             System.err.println("Unable to get applicant details from result set");
+            response.sendError(500, "The server is unable to retrive your details from the database");
             return;
         }
 
@@ -123,14 +123,11 @@ public class DeleteProfileServlet extends HttpServlet {
             System.err.println("Unable to delete applicant " + session.getAttribute("applicantID"));
             return;
         }
-        response.sendRedirect("confirmation.jsp");
+        response.sendRedirect("profileDeleteConfirmation.jsp");
     }
 
     private HttpSession getSession(HttpServletRequest request) {
         return request.getSession();
     }
 
-    private String getApplicantData(ApplicantFields field, ResultSet results) throws SQLException {
-        return (String) results.getObject(field.name().toLowerCase());
-    }
 }
