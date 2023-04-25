@@ -36,6 +36,10 @@
         <servlet-name>GetVacancyApplicationsServlet</servlet-name>
         <servlet-class>za.ac.tut.web.servlet.GetVacancyApplicationsServlet</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>WithdrawVacancyServlet</servlet-name>
+        <servlet-class>za.ac.tut.web.servlet.WithdrawVacancyServlet</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>SessionManagerServlet</servlet-name>
         <url-pattern>/SessionManagerServlet</url-pattern>
@@ -71,6 +75,10 @@
     <servlet-mapping>
         <servlet-name>GetVacancyApplicationsServlet</servlet-name>
         <url-pattern>/GetVacancyApplicationsServlet</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>WithdrawVacancyServlet</servlet-name>
+        <url-pattern>/WithdrawVacancyServlet</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>
