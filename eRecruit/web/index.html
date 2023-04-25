@@ -24,7 +24,7 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit thi
             <p>
                 Please use the navigation links below to perform various actions.
             </p>
-            
+
             <table>
                 <tr>
                     <td>Applicant</td>
@@ -36,13 +36,14 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit thi
                         <nav id="applicant_navigations">
                             <ul>
                                 <li><a href="ApplicationServlet">Apply</a></li>
-                                <li><a href="getUserInfo.html">View Application History</a></li>
+                                <li><a href="StartViewApplicationHistoryServlet.do">View Application History</a></li>
+                                <li><a href="StartWithDrawApplicationServlet.do">Withdraw Application</a></li>
                                 <li><a href="UpdateProServlet.do">Update Profile</a></li>
                                 <li><a id="deleteProfile" href="" onclick="getUserID()">Delete Profile</a></li>
                             </ul>
                         </nav>
                     </td>
-                    
+
                     <td>
                         <nav id="recruiter_navigation">
                             <ul>
@@ -59,5 +60,5 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit thi
         </section>
         <script src="scripts/functions.js"></script>
     </body>
-    
+
 </html>

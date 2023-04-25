@@ -36,6 +36,22 @@
         <servlet-name>GetVacancyApplicationsServlet</servlet-name>
         <servlet-class>za.ac.tut.web.servlet.GetVacancyApplicationsServlet</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>StartViewApplicationHistoryServlet</servlet-name>
+        <servlet-class>za.ac.tut.startviewapplicationhistoryservlet.StartViewApplicationHistoryServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>ViewApplicationHistoryServlet</servlet-name>
+        <servlet-class>za.ac.tut.viewapplicationhistoryservlet.ViewApplicationHistoryServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>ViewApplicationWithdrawalServlet</servlet-name>
+        <servlet-class>za.ac.tut.viewapplicationwithdrawalservlet.ViewApplicationWithdrawalServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>StartWithDrawApplicationServlet</servlet-name>
+        <servlet-class>za.ac.tut.startwithdrawapplicationservlet.StartWithDrawApplicationServlet</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>SessionManagerServlet</servlet-name>
         <url-pattern>/SessionManagerServlet</url-pattern>
@@ -71,6 +87,22 @@
     <servlet-mapping>
         <servlet-name>GetVacancyApplicationsServlet</servlet-name>
         <url-pattern>/GetVacancyApplicationsServlet</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>StartViewApplicationHistoryServlet</servlet-name>
+        <url-pattern>/StartViewApplicationHistoryServlet.do</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ViewApplicationHistoryServlet</servlet-name>
+        <url-pattern>/ViewApplicationHistoryServlet.do</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ViewApplicationWithdrawalServlet</servlet-name>
+        <url-pattern>/ViewApplicationWithdrawalServlet.do</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>StartWithDrawApplicationServlet</servlet-name>
+        <url-pattern>/StartWithDrawApplicationServlet.do</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>
