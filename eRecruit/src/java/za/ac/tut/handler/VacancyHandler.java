@@ -10,6 +10,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import javax.mail.MessagingException;
 import za.ac.tut.application.Applicant;
 import za.ac.tut.database.manager.DatabaseManager;
 import za.ac.tut.ejb.EmailSessionBean;
@@ -20,6 +21,7 @@ import za.ac.tut.exception.VacancyExistsException;
 import za.ac.tut.interfaces.Matchable;
 import za.ac.tut.interfaces.Matcher;
 import za.ac.tut.qualification.Qualification;
+import za.ac.tut.recruiter.Recruiter;
 import za.ac.tut.vacancy.Vacancy;
 
 /**
@@ -28,10 +30,13 @@ import za.ac.tut.vacancy.Vacancy;
  */
 public class VacancyHandler extends NotificationHandler implements Matcher {
 
+    private RecruiterHandler recruiterHandler;
+
     public VacancyHandler(DatabaseManager dbManager, EmailSessionBean emailBean) throws ClassNotFoundException, SQLException {
         super(dbManager, emailBean);
+        this.recruiterHandler = new RecruiterHandler(dbManager);
     }
-    
+
     private List getMatchedApplicantIDList(String vacancyRef) throws SQLException {
         List applicantIDsList = new ArrayList<>();
 
@@ -44,6 +49,27 @@ public class VacancyHandler extends NotificationHandler implements Matcher {
         }
 
         return applicantIDsList;
+    }
+
+    public List<Applicant> getMatchedApplicants(String vacancyRefNr) throws SQLException {
+        List<Applicant> matchedApplicantsList = new ArrayList<>();
+
+        List<String> matchedApplicantIDs = getMatchedApplicantIDList(vacancyRefNr);
+        if (!matchedApplicantIDs.isEmpty()) {
+            for (String applicantID : matchedApplicantIDs) {
+                ResultSet rs = executeQuery("SELECT * FROM applicant WHERE applicant_id = \'" + applicantID + "\';");
+                rs.next();
+
+                String firstName = getStringData(ApplicantFields.FIRST_NAME, rs);
+                String middleName = getStringData(ApplicantFields.MIDDLE_NAME, rs);
+                String surname = getStringData(ApplicantFields.SURNAME, rs);
+                String emailAddress = getStringData(ApplicantFields.EMAIL_ADDRESS, rs);
+                String phoneNr = getStringData(ApplicantFields.PHONE_NR, rs);
+
+                matchedApplicantsList.add(new Applicant(applicantID, firstName, middleName, surname, phoneNr, emailAddress));
+            }
+        }
+        return matchedApplicantsList;
     }
 
     @Override
@@ -131,7 +157,7 @@ public class VacancyHandler extends NotificationHandler implements Matcher {
 
         for (String skill : newVacancy.getRequiredSkills()) {
             String insertSkillsQuery = "INSERT INTO required_skill(skill_id, vacancy_reference_nr) VALUES((SELECT skill_id FROM skill WHERE skill = \'" + skill + "\'),\'" + refNr + "\');";
-            getDatabaseManager().executeUpdate(insertSkillsQuery);
+            executeUpdate(insertSkillsQuery);
         }
 
         for (Qualification requiredQuailification : newVacancy.getRequiredQualifications()) {
@@ -146,7 +172,7 @@ public class VacancyHandler extends NotificationHandler implements Matcher {
 
         String query = "SELECT " + VacancyTypeFields.VACANCY_TYPE.name() + " FROM vacancy_type;";
 
-        ResultSet results = executeQuery(query);
+        ResultSet results = getDatabaseManager().executeQuery(query);
 
         if (getDatabaseManager().hasData(results)) {
             while (results.next()) {
@@ -156,20 +182,93 @@ public class VacancyHandler extends NotificationHandler implements Matcher {
 
         return vacancyTypesList;
     }
-    
-    public List<Vacancy> getAllVacancies(String enterpriseNr) throws SQLException, ClassNotFoundException{
+
+    public List<Vacancy> getAllVacancies(String enterpriseNr) throws SQLException, ClassNotFoundException {
         List<Vacancy> recruiterVacanciesList = new ArrayList<>();
-        
+
         List<Vacancy> vacanciesList = super.getAllVacancies();
-        
-        if (!vacanciesList.isEmpty()){
-            for (Vacancy postedVacancy : vacanciesList){
-                if (postedVacancy.getPostingRecruiter().getEnterpriseNumber().equalsIgnoreCase(enterpriseNr)){
+
+        if (!vacanciesList.isEmpty()) {
+            for (Vacancy postedVacancy : vacanciesList) {
+                if (postedVacancy.getPostingRecruiter().getEnterpriseNumber().equalsIgnoreCase(enterpriseNr)) {
                     recruiterVacanciesList.add(postedVacancy);
                 }
             }
         }
-        
+
         return recruiterVacanciesList;
+    }
+
+    public void withdrawVacancy(String vacancyRefNr) throws SQLException, MessagingException {
+        Vacancy postedVacancy = getVacancy(vacancyRefNr);
+        
+        if (postedVacancy != null) {
+            List<Applicant> qualifyingApplicantsList = getMatchedApplicants(vacancyRefNr);
+            executeUpdate("DELETE FROM vacancy WHERE reference_nr = \'" + vacancyRefNr + "\';");
+            
+            for (Applicant qualifyingApplicant : qualifyingApplicantsList){
+                this.notify(qualifyingApplicant.getEmailAddress(), "Vacancy Withdrawal", "Greetings " + qualifyingApplicant.getFirstName() + ",\n\n"
+                        + "We regret to inform you that " + postedVacancy.getPostingRecruiter().getEnterpriseName() + " has decided to withdraw the vacancy " + postedVacancy.getReferenceNr() + 
+                        "for which you were deemed as qualified.\n"
+                        + "More vacancies will be posted on the eRecruit system, surely something will come up.\n"
+                        + "As always, we wish you the best of luck on your endeavours.\n\n"
+                        + "Regards, \n"
+                        + "The eRecruit Team");
+            }
+        }
+    }
+
+    public Vacancy getVacancy(String refNr) throws SQLException {
+        ResultSet rs = executeQuery("SELECT * FROM VACANCY WHERE reference_nr = \'" + refNr + "\';");
+
+        if (getDatabaseManager().hasData(rs)) {
+            rs.next();
+
+            String description = getStringData(VacancyFields.VACANCY_DESCRIPTION, rs);
+            Date closingDate = rs.getDate(VacancyFields.CLOSING_DATE.name().toLowerCase());
+            Integer vacancyTypeID = rs.getInt(VacancyFields.VACANCY_TYPE_ID.name().toLowerCase());
+            String recruiterEnterpriseNr = getStringData(VacancyFields.RECRUITER_ENTERPRISE_NR, rs);
+
+            Recruiter postingRecruiter = this.recruiterHandler.getRecruiter(recruiterEnterpriseNr);
+
+            Vacancy postedVacancy = new Vacancy(refNr, description, closingDate, vacancyTypeID, postingRecruiter);
+
+            rs = executeQuery("SELECT skill FROM skill WHERE skill_id = (SELECT skill_id FROM required_skill WHERE vacancy_reference_nr = \'" + refNr + "\');");
+
+            if (getDatabaseManager().hasData(rs)) {
+                while (rs.next()) {
+                    postedVacancy.getRequiredSkills().add(getStringData(1, rs));
+                }
+            }
+
+            rs = executeQuery("SELECT type_name FROM qualification_type WHERE type_id = (SELECT type_id FROM required_qualification WHERE vacancy_reference_nr = \'" + refNr + "\');");
+            ArrayList<String> typesList = new ArrayList<>();
+
+            if (getDatabaseManager().hasData(rs)) {
+                while (rs.next()) {
+                    typesList.add(getStringData(1, rs));
+                }
+            }
+
+            rs = executeQuery("SELECT course_name FROM course WHERE course_id = (SELECT course_id FROM required_qualification WHERE vacancy_reference_nr = \'" + refNr + "\');");
+
+            ArrayList<String> coursesList = new ArrayList<>();
+
+            if (getDatabaseManager().hasData(rs)) {
+                while (rs.next()) {
+                    coursesList.add(getStringData(1, rs));
+                }
+            }
+
+            if ((!typesList.isEmpty()) && (!coursesList.isEmpty())) {
+                for (String type : typesList) {
+                    postedVacancy.getRequiredQualifications().add(new Qualification(type, coursesList.get(typesList.indexOf(type))));
+                }
+            }
+
+            return postedVacancy;
+        }
+
+        return null;
     }
 }
