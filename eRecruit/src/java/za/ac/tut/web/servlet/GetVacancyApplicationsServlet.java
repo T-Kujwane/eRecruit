@@ -53,8 +53,23 @@ public class GetVacancyApplicationsServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        String enterpriseNr = request.getParameter("enterpriseNr");
+        request.getSession().setAttribute("postingURL", getClass().getSimpleName());
         
+        request.getRequestDispatcher("getRecruiterEnterpriseNumber.jsp").forward(request, response);
+    }
+
+    /**
+     * Handles the HTTP <code>POST</code> method.
+     *
+     * @param request servlet request
+     * @param response servlet response
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException if an I/O error occurs
+     */
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        String enterpriseNr = request.getParameter("enterpriseNr");
         try {
             request.getSession().setAttribute("recruiterName", this.recruiterHandler.getRecruiter(enterpriseNr).getEnterpriseName());
         } catch (SQLException ex) {
@@ -83,20 +98,6 @@ public class GetVacancyApplicationsServlet extends HttpServlet {
         request.getSession().setAttribute("vacanciesList", recruiterVacancies);
         
         response.sendRedirect("recruiterDashboard.jsp");
-    }
-
-    /**
-     * Handles the HTTP <code>POST</code> method.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
-    @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        
     }
 
 }
