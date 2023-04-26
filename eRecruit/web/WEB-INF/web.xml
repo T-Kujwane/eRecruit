@@ -37,8 +37,28 @@
         <servlet-class>za.ac.tut.web.servlet.GetVacancyApplicationsServlet</servlet-class>
     </servlet>
     <servlet>
-        <servlet-name>WithdrawVacancyServlet</servlet-name>
-        <servlet-class>za.ac.tut.web.servlet.WithdrawVacancyServlet</servlet-class>
+        <servlet-name>StartViewApplicationHistoryServlet</servlet-name>
+        <servlet-class>za.ac.tut.startviewapplicationhistoryservlet.StartViewApplicationHistoryServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>ViewApplicationHistoryServlet</servlet-name>
+        <servlet-class>za.ac.tut.viewapplicationhistoryservlet.ViewApplicationHistoryServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>ViewApplicationWithdrawalServlet</servlet-name>
+        <servlet-class>za.ac.tut.viewapplicationwithdrawalservlet.ViewApplicationWithdrawalServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>StartWithDrawApplicationServlet</servlet-name>
+        <servlet-class>za.ac.tut.startwithdrawapplicationservlet.StartWithDrawApplicationServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>StartWithDrawAppServlet</servlet-name>
+        <servlet-class>za.ac.tut.web.servlet.StartWithDrawAppServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>WithdrawParticularAppServlet</servlet-name>
+        <servlet-class>za.ac.tut.web.servlet.WithdrawParticularAppServlet</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>SessionManagerServlet</servlet-name>
@@ -77,12 +97,40 @@
         <url-pattern>/GetVacancyApplicationsServlet</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
-        <servlet-name>WithdrawVacancyServlet</servlet-name>
-        <url-pattern>/WithdrawVacancyServlet</url-pattern>
+        <servlet-name>StartViewApplicationHistoryServlet</servlet-name>
+        <url-pattern>/StartViewApplicationHistoryServlet.do</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ViewApplicationHistoryServlet</servlet-name>
+        <url-pattern>/ViewApplicationHistoryServlet.do</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ViewApplicationWithdrawalServlet</servlet-name>
+        <url-pattern>/ViewApplicationWithdrawalServlet.do</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>StartWithDrawApplicationServlet</servlet-name>
+        <url-pattern>/StartWithDrawApplicationServlet.do</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>StartWithDrawAppServlet</servlet-name>
+        <url-pattern>/StartWithDrawAppServlet.do</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>WithdrawParticularAppServlet</servlet-name>
+        <url-pattern>/WithdrawParticularAppServlet.do</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>
             30
         </session-timeout>
     </session-config>
+    <error-page>
+        <exception-type>
+            za.ac.tut.exception.IdentityNumberExistsException
+        </exception-type>
+        <location>
+            /InvalidIdentityNumber.jsp
+        </location>
+    </error-page>
 </web-app>
