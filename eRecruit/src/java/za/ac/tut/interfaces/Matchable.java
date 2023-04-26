@@ -4,10 +4,12 @@
  */
 package za.ac.tut.interfaces;
 
+import java.io.Serializable;
+
 /**
  *
- * @author Chocolate
+ * @author T Kujwane
  */
-public interface Matchable {
+public interface Matchable extends Serializable {
     
 }

@@ -21,6 +21,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import za.ac.tut.application.Application;
 import za.ac.tut.database.manager.DatabaseManager;
+import za.ac.tut.exception.IdentityNumberExistsException;
 import za.ac.tut.viewapplicationhistoryservlet.ViewApplicationHistoryServlet;
 
 /**
@@ -66,7 +67,7 @@ public class ViewApplicationWithdrawalServlet extends HttpServlet {
      */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+            throws ServletException, IOException ,IdentityNumberExistsException{
     
     
         HttpSession session = request.getSession(true);
@@ -112,7 +113,7 @@ public class ViewApplicationWithdrawalServlet extends HttpServlet {
                 PreparedStatement ps = dm.prepareStatement(retrieveAplications);
                 ps.setString(1, identityNumber);
                 ResultSet rs = ps.executeQuery();
-
+                session.setAttribute("identityNumber", identityNumber);
                 while (rs.next() == true) {
 
                     String id = rs.getString("applicant.applicant_id");
@@ -129,11 +130,11 @@ public class ViewApplicationWithdrawalServlet extends HttpServlet {
                 session.setAttribute("identityNumber", identityNumber);
                 session.setAttribute("applications", applications);
 
-                RequestDispatcher rd = request.getRequestDispatcher("DisplayApplicationHistory.jsp");
+                RequestDispatcher rd = request.getRequestDispatcher("DisplayWithdrawApplicationOption.jsp");
                 rd.forward(request, response);
 
             } else {
-                System.out.println("is not found");
+                throw new IdentityNumberExistsException();
             }
 
         } catch (ClassNotFoundException ex) {

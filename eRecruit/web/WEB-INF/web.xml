@@ -52,6 +52,14 @@
         <servlet-name>StartWithDrawApplicationServlet</servlet-name>
         <servlet-class>za.ac.tut.startwithdrawapplicationservlet.StartWithDrawApplicationServlet</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>StartWithDrawAppServlet</servlet-name>
+        <servlet-class>za.ac.tut.web.servlet.StartWithDrawAppServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>WithdrawParticularAppServlet</servlet-name>
+        <servlet-class>za.ac.tut.web.servlet.WithdrawParticularAppServlet</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>SessionManagerServlet</servlet-name>
         <url-pattern>/SessionManagerServlet</url-pattern>
@@ -104,9 +112,25 @@
         <servlet-name>StartWithDrawApplicationServlet</servlet-name>
         <url-pattern>/StartWithDrawApplicationServlet.do</url-pattern>
     </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>StartWithDrawAppServlet</servlet-name>
+        <url-pattern>/StartWithDrawAppServlet.do</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>WithdrawParticularAppServlet</servlet-name>
+        <url-pattern>/WithdrawParticularAppServlet.do</url-pattern>
+    </servlet-mapping>
     <session-config>
         <session-timeout>
             30
         </session-timeout>
     </session-config>
+    <error-page>
+        <exception-type>
+            za.ac.tut.exception.IdentityNumberExistsException
+        </exception-type>
+        <location>
+            /InvalidIdentityNumber.jsp
+        </location>
+    </error-page>
 </web-app>
