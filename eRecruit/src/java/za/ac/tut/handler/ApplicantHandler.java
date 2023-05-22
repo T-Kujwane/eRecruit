@@ -156,8 +156,115 @@ public class ApplicantHandler extends NotificationHandler implements Matcher {
                 + "The eRecruit team wishes you the best of luck on your endeavors.\n\n"
                 + "Regards,\nThe eRecruit Team");
     }
+
+    public Applicant getApplicant(String applicantID) throws SQLException, ClassNotFoundException {
+        ResultSet rs = executeQuery("SELECT * FROM applicant WHERE applicant_id = \'" + applicantID + "\';");
+        Applicant applicant = null;
+
+        if (getDatabaseManager().hasData(rs)) {
+            getDatabaseManager().moveCursor(rs);
+            String firstName = getStringData(2, rs);
+            String middleName = getStringData(3, rs);
+            String surname = getStringData(4, rs);
+            String emailAddress = getStringData(5, rs);
+            String phoneNumber = getStringData(6, rs);
+            applicant = new Applicant(applicantID, firstName, middleName, surname, phoneNumber, emailAddress);
+
+            rs = executeQuery("SELECT s.skill FROM skill s, applicant_skill aps WHERE s.skill_id = aps.skill_id AND aps.applicant_id = \'" + applicantID + "\';");
+
+            if (getDatabaseManager().hasData(rs)) {
+                while (rs.next()) {
+                    applicant.addSkill(getStringData(1, rs));
+                }
+            }
+
+            rs = executeQuery("SELECT v.vacancy_type FROM vacancy_type v, prefered_vacancy_type pvt WHERE pvt.vacancy_type_id = v.vacancy_type_id AND pvt.applicant_id = \'" + applicantID + "\';");
+
+            if (getDatabaseManager().hasData(rs)) {
+                while (rs.next()) {
+                    applicant.addPreferedVacancy(getStringData(1, rs));
+                }
+            }
+
+            rs = executeQuery("SELECT qt.type_name FROM qualification_type qt, applicant_qualification aq WHERE aq.type_id = qt.type_id AND aq.applicant_id = \'" + applicantID + "\';");
+
+            if (getDatabaseManager().hasData(rs)) {
+                ResultSet coursesResultSet = new DatabaseManager().executeQuery("SELECT c.course_name FROM course c, applicant_qualification aq WHERE c.course_id = aq.course_id AND aq.applicant_id = \'" + applicantID + "\';");
+
+                while (rs.next()) {
+                    coursesResultSet.next();
+
+                    String course = getStringData(1, coursesResultSet);
+                    String qualificationType = getStringData(1, rs);
+
+                    applicant.addQualification(new Qualification(qualificationType, course));
+                }
+            }
+        }
+
+        return applicant;
+    }
+
+    private boolean applicantQualifies(Applicant applicant, Vacancy vacancy) throws SQLException{
+        boolean isInterestedInVacancyType = false;
+
+        for (String applicantVacancyType : applicant.getPreferredVacancyTypes()) {
+            String vacancyType = getDatabaseManager().moveCursor(
+                    executeQuery("SELECT vacancy_type FROM vacancy_type WHERE vacancy_type_id = " + vacancy.getVacancyTypeId() + ";")
+            ).getString(1);
+            
+            if (applicantVacancyType.equalsIgnoreCase(vacancyType)) {
+                isInterestedInVacancyType = true;
+                break;
+            }
+        }
+
+        boolean hasRequiredQualification = false;
+
+        for (Qualification applicantQualification : applicant.getApplicantQualifications()) {
+            for (Qualification vacancyQualification : vacancy.getRequiredQualifications()) {
+                if (applicantQualification.equals(vacancyQualification)) {
+                    hasRequiredQualification = true;
+                    break;
+                }
+            }
+        }
+
+        boolean hasRequiredSkills = false;
+
+        int possessedRequiredSkillsCount = 0;
+
+        for (String applicantSkill : applicant.getSkills()) {
+            for (String vacancySkill : vacancy.getRequiredSkills()) {
+                if (applicantSkill.equalsIgnoreCase(vacancySkill)) {
+                    possessedRequiredSkillsCount++;
+                }
+            }
+        }
+
+        if (possessedRequiredSkillsCount >= vacancy.getRequiredSkills().size()) {
+            hasRequiredSkills = true;
+        }
+
+        return hasRequiredQualification && isInterestedInVacancyType && hasRequiredSkills;
+    }
+
+    public List<Vacancy> getApplicantQualifyingVacancies(Applicant applicant) throws SQLException, ClassNotFoundException {
+        List<Vacancy> applicantQualifyingVacancies = new ArrayList<>();
+        List<Vacancy> postedVacancies = getAllVacancies();
+        
+        for (Vacancy postedVacancy : postedVacancies){
+            System.out.println("Determining if " + applicant.toString() + " qualifies for " + postedVacancy.toString());
+            if(applicantQualifies(applicant, postedVacancy)){
+                System.out.println(applicant.getFirstName() + " qualifies.");
+                applicantQualifyingVacancies.add(postedVacancy);
+            }
+        }
+        
+        return applicantQualifyingVacancies;
+    }
     
-    public Applicant getApplicant(String applicantID){
-        throw new UnsupportedOperationException("This functionality is not yet implemented");
+    public void withdrawApplication(Applicant applicant, String vacancyReferenceNr) throws SQLException{
+        executeUpdate("DELETE FROM qualifying_applicant WHERE vacancy_reference_nr = \'" + vacancyReferenceNr + "\' AND applicant_id = \'" + applicant.getApplicantID() + "\';");
     }
 }

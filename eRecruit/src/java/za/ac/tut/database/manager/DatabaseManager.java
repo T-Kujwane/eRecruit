@@ -32,7 +32,7 @@ public class DatabaseManager {
      * @throws ClassNotFoundException
      * @throws SQLException 
      */
-    public DatabaseManager(String url, String userName, String password) throws ClassNotFoundException, SQLException {
+    private DatabaseManager(String url, String userName, String password) throws ClassNotFoundException, SQLException {
         Class.forName("com.mysql.cj.jdbc.Driver");
         this.connection = DriverManager.getConnection(url, userName, password);
         this.statement = this.connection.createStatement();
@@ -89,6 +89,8 @@ public class DatabaseManager {
         
         return data;
     }
+    
+    
     
     public synchronized PreparedStatement prepareStatement(String sql) throws SQLException{
         return this.connection.prepareStatement(sql);

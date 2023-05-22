@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <web-app version="3.1" xmlns="http://xmlns.jcp.org/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd">
+    <distributable/>
     <servlet>
         <servlet-name>SessionManagerServlet</servlet-name>
         <servlet-class>za.ac.tut.web.servlet.SessionManagerServlet</servlet-class>
@@ -39,6 +40,26 @@
     <servlet>
         <servlet-name>WithdrawVacancyServlet</servlet-name>
         <servlet-class>za.ac.tut.web.servlet.WithdrawVacancyServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>AddUserServlet</servlet-name>
+        <servlet-class>za.ac.tut.web.servlet.AddUserServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>AddRecruiterServlet</servlet-name>
+        <servlet-class>za.ac.tut.web.servlet.AddRecruiterServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>LogInServlet</servlet-name>
+        <servlet-class>za.ac.tut.web.servlet.LogInServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>ApplicantDashboardServlet</servlet-name>
+        <servlet-class>za.ac.tut.web.servlet.ApplicantDashboardServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>WithdrawApplicationServlet</servlet-name>
+        <servlet-class>za.ac.tut.web.servlet.WithdrawApplicationServlet</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>SessionManagerServlet</servlet-name>
@@ -80,9 +101,39 @@
         <servlet-name>WithdrawVacancyServlet</servlet-name>
         <url-pattern>/WithdrawVacancyServlet</url-pattern>
     </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>AddUserServlet</servlet-name>
+        <url-pattern>/AddUserServlet</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>AddRecruiterServlet</servlet-name>
+        <url-pattern>/AddRecruiterServlet</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>LogInServlet</servlet-name>
+        <url-pattern>/LogInServlet</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ApplicantDashboardServlet</servlet-name>
+        <url-pattern>/ApplicantDashboardServlet</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>WithdrawApplicationServlet</servlet-name>
+        <url-pattern>/WithdrawApplicationServlet</url-pattern>
+    </servlet-mapping>
     <session-config>
-        <session-timeout>
-            30
-        </session-timeout>
+        <session-timeout>160</session-timeout>
     </session-config>
+    <error-page>
+        <error-code>500</error-code>
+        <location>/errorPage.jsp</location>
+    </error-page>
+    <error-page>
+        <error-code>400</error-code>
+        <location>/errorPage.jsp</location>
+    </error-page>
+    <error-page>
+        <exception-type>za.ac.tut.exception.ApplicantExistsException</exception-type>
+        <location>/errorPage.jsp</location>
+    </error-page>
 </web-app>

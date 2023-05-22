@@ -4,13 +4,14 @@
  */
 package za.ac.tut.qualification;
 
+import java.io.Serializable;
 import java.util.Objects;
 
 /**
  * This object models a qualification
  * @author T Kujwane
  */
-public class Qualification {
+public class Qualification implements Serializable{
     private final String type, course;
 
     public Qualification(String type, String course) {

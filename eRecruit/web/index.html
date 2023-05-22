@@ -21,40 +21,34 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit thi
 
             Welcome to the recruitment automation system, known as <strong><a href="index.html"><em>e-Recruit</em></a></strong>.<br/>
 
-            <p>
-                Please use the navigation links below to perform various actions.
+            <!--<p>
+                Select your role below.
             </p>
             
             <table>
+                
                 <tr>
-                    <td>Applicant</td>
-                    <td>Recruiter</td>
-                </tr>
-
-                <tr>
-                    <td>
-                        <nav id="applicant_navigations">
-                            <ul>
-                                <li><a href="ApplicationServlet">Apply</a></li>
-                                <li><a href="getUserInfo.html">View Application History</a></li>
-                                <li><a href="UpdateProServlet.do">Update Profile</a></li>
-                                <li><a id="deleteProfile" href="" onclick="getUserID()">Delete Profile</a></li>
-                            </ul>
-                        </nav>
-                    </td>
+                    <td><a href="applicantMenu.jsp">Applicant</a></td>
                     
-                    <td>
-                        <nav id="recruiter_navigation">
-                            <ul>
-                                <li><a href="PublishVacancyServlet">Publish Vacancy</a></li>
-                                <li><a id="GetVacancyApplicationsServlet" href="GetVacancyApplicationsServlet" >View Vacancy Applications</a></li>
-                                <li><a id="WithdrawVacancyServlet" href="" onclick="getRecruiterEnterpriseNumber(WithdrawVacancyServlet)">Withdraw Vacancy</a></li>
-                            </ul>
-
-                        </nav>
-                    </td>
+                    <td><a href="recruiterMenu.jsp">Recruiter</a></td>
                 </tr>
-            </table>
+            </table>-->
+            <h3>About</h3>
+            <p>
+                The e-Recruit system is a recruitment automation system that aims to simplify the cumbersome process
+                encountered when applying for various opportunities. This system aims to efficiently smoothen the recruitment
+                process as user friendly as possible while maintaining integrity. This is a system intended 
+                for both recruiters and applicants wherein recruiters can upload different types of vacancies 
+                (opportunities) such as employment vacancies, bursaries, and leanerships then let the system 
+                handle most of the selection processes. The system also includes notification functionalities so that 
+                users are kept up-to-date with relevant information without having to log in onto the system.
+                <br>
+                
+                Click on the following navigation links to explore the possible functionalities of the system.
+                <br><br>
+                <a href="AddUserServlet">Sign up as a new user</a> or 
+                <a href="LogInServlet">Sign in as an existing user</a>
+            </p>
 
         </section>
         <script src="scripts/functions.js"></script>

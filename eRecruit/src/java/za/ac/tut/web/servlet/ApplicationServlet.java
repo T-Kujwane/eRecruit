@@ -9,6 +9,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.ejb.EJB;
 import javax.inject.Inject;
 import javax.mail.MessagingException;
@@ -33,13 +35,13 @@ import za.ac.tut.vacancy.Vacancy;
  * @author T Kujwane
  */
 public class ApplicationServlet extends HttpServlet {
-    
+
     private final DatabaseManager dbManager;
     private final ApplicantHandler applicantHandler;
     private final VacancyHandler vacancyHandler;
     private final QualificationHandler qualificationHandler;
     private final SkillHandler skillHandler;
-    
+
     @EJB
     @Inject
     private EmailSessionBean emailSessionBean;
@@ -52,7 +54,7 @@ public class ApplicationServlet extends HttpServlet {
         this.qualificationHandler = new QualificationHandler(dbManager);
         this.skillHandler = new SkillHandler(dbManager);
     }
-    
+
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**
      * Handles the HTTP <code>GET</code> method.
@@ -73,7 +75,7 @@ public class ApplicationServlet extends HttpServlet {
             System.err.println("Unable to get vacancy types in " + this.getClass().getSimpleName());
             return;
         }
-        
+
         try {
             addSessionAttribute("qualificationTypes", this.qualificationHandler.getQualificationTypes(), se);
         } catch (SQLException ex) {
@@ -86,14 +88,14 @@ public class ApplicationServlet extends HttpServlet {
         } catch (SQLException ex) {
             System.err.println("Unable to get courses.");
         }
-        
-        try {   
+
+        try {
             addSessionAttribute("skills", this.skillHandler.getSkills(), se);
         } catch (SQLException ex) {
             System.err.println("Unable to get skills.\n" + ex);
             return;
         }
-        
+
         try {
             addSessionAttribute("vacancyTypes", this.vacancyHandler.getVacancyTypes(), se);
         } catch (SQLException ex) {
@@ -101,7 +103,7 @@ public class ApplicationServlet extends HttpServlet {
             response.sendError(500, "Unable to get vacancy types");
             return;
         }
-        
+
         response.sendRedirect("addApplicantPage.jsp");
     }
 
@@ -123,32 +125,39 @@ public class ApplicationServlet extends HttpServlet {
         String emailAddress = getParameter("emailAddress", request);
         String phoneNr = getParameter("phoneNumber", request);
         
+        HttpSession session = request.getSession();
+        
         Applicant newApplicant = new Applicant(applicantID, firstName, middleName, surname, phoneNr, emailAddress);
-        
-        List<Qualification> applicantQualifications = getApplicantQualifications(request);
-        
-        if (getParameterValues("applicantSkills", request) != null){
+
+        newApplicant.getApplicantQualifications().addAll(getApplicantQualifications(request));
+
+        if (getParameterValues("applicantSkills", request) != null) {
             newApplicant.getSkills().addAll(getApplicantSkills(request));
         }
-        
+
         newApplicant.getPreferredVacancyTypes().addAll(getApplicantPreferredVacancyTypes(request));
         
+
         try {
             this.applicantHandler.addApplicant(newApplicant);
         } catch (SQLException ex) {
             System.err.println("Unable to add applicant due to SQL error.\n" + ex);
             ex.printStackTrace(System.err);
+            session.setAttribute("exceptionTitle", "Database Error");
+            session.setAttribute("exceptionMsg", "A database error has occured.");
+            response.sendError(500);
             return;
         } catch (ApplicantExistsException ex) {
             System.err.println("Applicant already has a profile.\n" + ex);
             ex.printStackTrace(System.err);
+            response.sendError(500, "A profile with the provided ID number already exists.");
             return;
         }
-        
+
         List<Vacancy> matchedVacancies;
-        
+
         try {
-           matchedVacancies =  this.applicantHandler.match(newApplicant);
+            matchedVacancies = this.applicantHandler.match(newApplicant);
         } catch (SQLException ex) {
             System.err.println("Unable to find vacancies matching applicant due to an SQL error.\n" + ex);
             return;
@@ -156,9 +165,9 @@ public class ApplicationServlet extends HttpServlet {
             System.err.println("Parsed entity type unknown.\n" + ex);
             return;
         }
-        
-        if (matchedVacancies != null){
-            for (Vacancy matchedVacancy : matchedVacancies){
+
+        if (matchedVacancies != null) {
+            for (Vacancy matchedVacancy : matchedVacancies) {
                 try {
                     this.applicantHandler.notifyApplicant(newApplicant, matchedVacancy);
                 } catch (SQLException ex) {
@@ -176,57 +185,57 @@ public class ApplicationServlet extends HttpServlet {
         }
         response.sendRedirect("profileCreated.jsp");
     }
-    
+
     private void addSessionAttribute(String name, Object attribute, HttpSession session) {
         session.setAttribute(name, attribute);
     }
-    
+
     private String getParameter(String parameter, HttpServletRequest request) {
         return request.getParameter(parameter);
     }
-    
-    private List getApplicantQualifications(HttpServletRequest request){
+
+    private List getApplicantQualifications(HttpServletRequest request) {
         List<Qualification> applicantQualifications = new ArrayList<>();
-        
+
         String[] applicantQualificationTypes = getParameterValues("applicantQualificationType", request);
         String[] courses = getParameterValues("course", request);
-        
+
         ArrayList<String> coursesList = new ArrayList<>();
-        
-        for (String course : courses){
-            if (! course.equalsIgnoreCase("null")){
+
+        for (String course : courses) {
+            if (!course.equalsIgnoreCase("null")) {
                 coursesList.add(course);
             }
         }
-        
-        if (Arrays.asList(applicantQualificationTypes).contains("National Senior Certificate (NSC)")){
+
+        if (Arrays.asList(applicantQualificationTypes).contains("National Senior Certificate (NSC)")) {
             coursesList.add(0, "Matric Subjects");
         }
-        
-        for (String course : coursesList){
+
+        for (String course : coursesList) {
             applicantQualifications.add(
                     new Qualification(
                             applicantQualificationTypes[coursesList.indexOf(course)], course
                     )
             );
         }
-        
+
         return applicantQualifications;
     }
-    
-    private List<String> getApplicantSkills(HttpServletRequest request){
+
+    private List<String> getApplicantSkills(HttpServletRequest request) {
         ArrayList<String> skillsList = new ArrayList<>();
-        
+
         skillsList.addAll(Arrays.asList(getParameterValues("applicantSkill", request)));
-        
+
         return skillsList;
     }
-    
-    private List<String> getApplicantPreferredVacancyTypes(HttpServletRequest request){
+
+    private List<String> getApplicantPreferredVacancyTypes(HttpServletRequest request) {
         ArrayList<String> preferredVacancyTypesList = new ArrayList<>();
-        
+
         preferredVacancyTypesList.addAll(Arrays.asList(getParameterValues("preferredVacancyType", request)));
-        
+
         return preferredVacancyTypesList;
     }
 

@@ -9,32 +9,31 @@ import java.io.PrintWriter;
 import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import za.ac.tut.application.Applicant;
 import za.ac.tut.database.manager.DatabaseManager;
+import za.ac.tut.handler.ApplicantHandler;
 
 /**
  *
- * @author My HP
+ * @author T Kujwane
  */
-public class UpdateProTwoServlet extends HttpServlet {
+public class WithdrawApplicationServlet extends HttpServlet {
+    private DatabaseManager dbManager;
+    private ApplicantHandler applicantHandler;
 
-    final private DatabaseManager db;
-    
-    public UpdateProTwoServlet()throws ClassNotFoundException,IOException, SQLException {
+    public WithdrawApplicationServlet() throws ClassNotFoundException, SQLException {
         super();
-        this.db = new DatabaseManager();
+        this.dbManager = new DatabaseManager();
+        this.applicantHandler = new ApplicantHandler(dbManager);
     }
-
-    
     
     /**
-     * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
-     * methods.
+     * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
      *
      * @param request servlet request
      * @param response servlet response
@@ -49,10 +48,10 @@ public class UpdateProTwoServlet extends HttpServlet {
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet UpdateProTwoServlet</title>");            
+            out.println("<title>Servlet WithdrawApplicationServlet</title>");            
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Servlet UpdateProTwoServlet at " + request.getContextPath() + "</h1>");
+            out.println("<h1>Servlet WithdrawApplicationServlet at " + request.getContextPath() + "</h1>");
             out.println("</body>");
             out.println("</html>");
         }
@@ -70,46 +69,21 @@ public class UpdateProTwoServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        
         HttpSession session = request.getSession();
         
-        String firstName = request.getParameter("firstName");
-        String middileName = request.getParameter("middleName");
-        String surname = request.getParameter("surname");
-        String email = request.getParameter("email");
-        String phoneNumber = request.getParameter("phoneNumber");
+        Applicant applicant = (Applicant) session.getAttribute("applicant");
+        String vacancyReferenceNr = request.getParameter("vacancyReferenceNr");
         
-        String idNumber = (String)session.getAttribute("idNumber");
-        
-        System.out.println(idNumber);
-        
-         //FIRST_NAME, MIDDLE_NAME, SURNAME, EMAIL_ADDRESS, PHONE_NR;
         try {
-            //Execute Update statements
-            db.executeUpdate(updateSet("FIRST_NAME", firstName, idNumber));
-            db.executeUpdate(updateSet("MIDDLE_NAME", middileName, idNumber));
-            db.executeUpdate(updateSet("SURNAME", surname, idNumber));
-            db.executeUpdate(updateSet("EMAIL_ADDRESS", email, idNumber));
-            db.executeUpdate(updateSet("PHONE_NR", phoneNumber, idNumber));
+            this.applicantHandler.withdrawApplication(applicant, vacancyReferenceNr);
         } catch (SQLException ex) {
-            Logger.getLogger(UpdateProTwoServlet.class.getName()).log(Level.SEVERE, null, ex);
+            session.setAttribute("exceptionTitle", "Database Error");
+            session.setAttribute("exceptionMsg", "The system encountered a databaser error while trying to withdraw your application. As a result, your application is not withdrawn. The development team has been notified of this issue, and it will be fixed.");
+            response.sendError(500);
+            return;
         }
         
-       RequestDispatcher disp = request.getRequestDispatcher("confirmed.jsp");
-       disp.forward(request, response);
-        
-    }
-    
-    private String updateSet(String column,String newValue,String idNumber){
-        
-        String query = "";
-        
-        query = "UPDATE applicant"+
-                "SET " + "\'" + column + "\'" +"="+ "\'" + newValue + "\'"+
-                "WHERE applicant_id = " + "\'" + idNumber + "\';";
-     
-        
-        return query;
+        response.sendRedirect("applicationWithdrawnConfirmation.jsp");
     }
 
     /**
@@ -123,7 +97,7 @@ public class UpdateProTwoServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response);
+        doGet(request, response);
     }
 
     /**

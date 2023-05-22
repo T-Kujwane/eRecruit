@@ -68,7 +68,7 @@
                 </tr>
                 <tr>
                     <td colspan="2" class="submitBtn">
-                        <input type="submit" value="Cancel" formaction="index.html"><input type="submit" value="Delete profile">
+                        <input type="submit" value="Cancel" formaction="ApplicantDashboardServlet"><input type="submit" value="Delete profile">
                     </td>
                 </tr>
             </table>

@@ -54,7 +54,7 @@ input[type = "submit"]:hover{
     color: red;
 }
 
-.tickImg, .recycleBinImg{
+.tickImg, .recycleBinImg, .errorGif, .sadImg{
     text-align: center;
 }
 
@@ -64,4 +64,33 @@ a{
 
 a:hover{
     color: blue;
+}
+
+nav>ul{
+    display: inline;
+    float: right;
+    clear: both;
+}
+
+.socialMediaLinks{
+    border: none;
+}
+
+input[type = "text"]{
+    width: border-box;
+}
+
+td.top_navigation{
+    margin-right: 5px;
+    color: red;
+    border: none;
+    background-color: bisque;
+}
+
+nav.top_navigations_container{
+    margin-bottom: 20px;
+}
+
+.top_navigation{
+    margin-right: 20px;
 }

@@ -18,7 +18,7 @@
             <div class="tickImg">
                 <img src="images/tick.png" alt="tick"/> <br/>
             </div>
-            Your profile has been successfully created. Click <a href="index.html">here</a> to navigate to the home page.
+            Your profile has been successfully created. Click <a href="ApplicantDashboardServlet">here</a> to navigate to the dashboard.
         </p>
     </body>
 </html>

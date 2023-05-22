@@ -138,39 +138,44 @@ public abstract class Handler {
 
                 getDatabaseManager().moveCursor(tempResultSet);
                 
-                tempResultSet = executeQuery("SELECT skill FROM skill WHERE skill_id = (SELECT skill_id FROM required_skill WHERE vacancy_reference_nr = \'" + refNr + "\');");
+                tempResultSet = executeQuery("SELECT s.skill FROM skill s, required_skill r WHERE s.skill_id = r.skill_id AND LOWER(r.vacancy_reference_nr) = \'" + refNr.toLowerCase() + "\';");
 
                 if (getDatabaseManager().hasData(tempResultSet)) {
                     while (tempResultSet.next()) {
-                        vacancy.addSkill(getDatabaseManager().getData(SkillFields.SKILL, results));
+                        vacancy.addSkill(tempResultSet.getString(1));
                     }
                 }
 
                 List<String> qualificationTypesList = new ArrayList<>();
 
-                tempResultSet = executeQuery("SELECT type_name FROM qualification_type WHERE type_id = (SELECT type_id FROM required_qualification WHERE vacancy_reference_nr = \'" + refNr + "\');");
+                tempResultSet = executeQuery("SELECT qt.type_name FROM qualification_type qt, required_qualification rq WHERE qt.type_id = rq.type_id AND LOWER(rq.vacancy_reference_nr) = \'" + refNr.toLowerCase() + "\';");
 
                 if (getDatabaseManager().hasData(tempResultSet)) {
                     while (tempResultSet.next()) {
-                        qualificationTypesList.add(getStringData(1, results));
+                        String requiredQualificationType = getStringData(1, tempResultSet);
+                        System.out.println("Required qualification type is: " + requiredQualificationType);
+                        qualificationTypesList.add(requiredQualificationType);
                     }
                 }
 
                 ArrayList<String> courseList = new ArrayList<>();
-                tempResultSet = executeQuery("SELECT course_name FROM course WHERE course_id = (SELECT course_id FROM required_qualification WHERE vacancy_reference_nr = \'" + refNr + "\');");
+                tempResultSet = executeQuery("SELECT c.course_name FROM course c, required_qualification rq WHERE c.course_id = rq.course_id AND LOWER(rq.vacancy_reference_nr) = \'" + refNr.toLowerCase() + "\';");
 
                 if (getDatabaseManager().hasData(tempResultSet)) {
                     while (tempResultSet.next()) {
-                        courseList.add(getStringData(1, results));
+                        String course = getStringData(1, tempResultSet); 
+                        System.out.println("Required course is " + course);
+                        courseList.add(course);
                     }
                 }
 
                 for (String type : qualificationTypesList) {
                     String course = courseList.get(qualificationTypesList.indexOf(type));
-
+                    Qualification requiredQualification = new Qualification(type, course);
+                    System.out.println("Adding required qualification " + requiredQualification.toString() + " in " + getClass().getSimpleName());
                     vacancy.addRequiredQualification(new Qualification(type, course));
                 }
-
+                System.out.println("Adding " + vacancy.toString() + " to all vacancies list");
                 vacanciesList.add(vacancy);
             }
         }

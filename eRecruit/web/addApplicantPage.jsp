@@ -4,6 +4,7 @@
     Author     : T Kujwane
 --%>
 
+<%@page import="za.ac.tut.user.User"%>
 <%@page import="java.util.List"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
@@ -55,12 +56,12 @@
                 
                 <tr>
                     <td>Email Address</td>
-                    <td><input type="text" name="emailAddress" required="" placeholder="developer.tk_kujwane@outlook.com"></td>
+                    <td><input type="text" name="emailAddress" readonly="" value="<%=((User)session.getAttribute("user")).getEmailAddress()%>"></td>
                 </tr>
                 
                 <tr>
                     <td>Primary Phone Number</td>
-                    <td><input type="text" name="phoneNumber" required="" placeholder="0695793157"></td>
+                    <td><input type="text" name="phoneNumber" required="" placeholder="" maxlength="10"></td>
                 </tr>
                 
                 <tr>
@@ -134,7 +135,8 @@
                 </tr>
                 
                 <tr>
-                    <td colspan="2" class="submitBtn"><input type="submit" value="Create Profile"></td>
+                    <td colspan="2" class="submitBtn">
+                        <input type="submit" value="Create Profile"></td>
                 </tr>
             </table>
         </form>

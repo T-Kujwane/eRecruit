@@ -23,7 +23,7 @@ public class NotificationHandler extends Handler{
         this.emailSessionBean = emailSessionBean;
     }
     
-    public synchronized void notify(String recipientEmail, String subject, String message) throws MessagingException {
+    protected synchronized void notify(String recipientEmail, String subject, String message) throws MessagingException {
         emailSessionBean.sendEmail(recipientEmail, subject, message);
     }
 }

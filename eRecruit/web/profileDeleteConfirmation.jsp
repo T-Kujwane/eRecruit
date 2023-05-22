@@ -14,6 +14,9 @@
         <link rel="stylesheet" type="text/css" href="styles/primaryStyles.css"/>
     </head>
     <body>
+        <nav style="text-align: right;">
+            <a href="logoutPage.jsp">Sign-out</a>
+        </nav>
         <h1>Account Deleted Successfully</h1>
         
         <%Applicant applicant = (Applicant) session.getAttribute("applicant");%>
@@ -22,8 +25,11 @@
             <div class="recycleBinImg">
                 <img src="images/empty-recycle-bin.png" alt="recycle bin"/>
             </div>
-            We are sad to see you go <%=applicant.getFirstName()%>. Nonetheless, your profile has been deleted. <br/>
-            Click <a href="index.html">here</a> to navigate back home.
+            We are sad to see you go <%=applicant.getFirstName()%>. Nonetheless, your profile has been deleted.<br>
+            <br><br>
+            <div class="sadImg">
+                <img src="images/sadImage.jpg" alt="sad image" width="20%"/>
+            </div>
         </p>
     </body>
 </html>

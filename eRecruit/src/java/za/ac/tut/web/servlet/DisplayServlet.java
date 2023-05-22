@@ -26,14 +26,9 @@ public class DisplayServlet extends HttpServlet {
 
     private DatabaseManager db;
     
-    String url = "jdbc:mysql://localhost:3306/recruitment_db?useSSL=false";
-    String userName  = "root";
-    String password = "root";
-    
     public DisplayServlet() throws ClassNotFoundException,IOException, SQLException{
-        
         super();
-        this.db = new DatabaseManager(url, userName, password);
+        this.db = new DatabaseManager();
     }
     
     

@@ -4,11 +4,13 @@
  */
 package za.ac.tut.recruiter;
 
+import java.io.Serializable;
+
 /**
  *
  * @author T Kujwane
  */
-public class Recruiter {
+public class Recruiter implements Serializable{
     private final String enterpriseName, enterpriseEmail, enterprisePhoneNr, enterpriseNumber;
 
     public Recruiter(String enterpriseName, String enterpriseEmail, String enterprisePhoneNr, String enterpriseNumber) {

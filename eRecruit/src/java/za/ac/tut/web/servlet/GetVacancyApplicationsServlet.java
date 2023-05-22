@@ -6,14 +6,16 @@ package za.ac.tut.web.servlet;
 
 import java.io.IOException;
 import java.io.PrintStream;
+import java.net.http.HttpRequest;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import jdk.internal.net.http.HttpRequestImpl;
 import za.ac.tut.database.manager.DatabaseManager;
 import za.ac.tut.ejb.EmailSessionBean;
 import za.ac.tut.handler.ApplicantHandler;
@@ -53,9 +55,11 @@ public class GetVacancyApplicationsServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        request.getSession().setAttribute("postingURL", getClass().getSimpleName());
+        /*request.getSession().setAttribute("postingURL", getClass().getSimpleName());
         
-        request.getRequestDispatcher("getRecruiterEnterpriseNumber.jsp").forward(request, response);
+        request.getRequestDispatcher("getRecruiterEnterpriseNumber.jsp").forward(request, response);*/
+        
+        doPost(request, response);
     }
 
     /**
@@ -69,34 +73,64 @@ public class GetVacancyApplicationsServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        String enterpriseNr = request.getParameter("enterpriseNr");
-        try {
-            request.getSession().setAttribute("recruiterName", this.recruiterHandler.getRecruiter(enterpriseNr).getEnterpriseName());
-        } catch (SQLException ex) {
-            System.err.println("Unable to get recruiter name from database.");
-            ex.printStackTrace(err);
-            response.sendError(500, "A database error occured while trying to get rectuiter name from database.");
-            return;
+        String recruiterEnterpriseNr = (String)request.getSession().getAttribute("recruiterEnterpriseNr");
+        
+        if (recruiterEnterpriseNr == null){
+            recruiterEnterpriseNr = request.getParameter("recruiterEnterpriseNr");
         }
         
-        List<Vacancy> recruiterVacancies;
+        System.out.println("Recruiter Enterprise Nr: " + recruiterEnterpriseNr);
+        List<String> vacancyTypesList = new ArrayList<>();
+
+        List<Vacancy> allRecruiterVacancies;
+        HttpSession session = request.getSession();
+
         try {
-            recruiterVacancies = this.vacancyHandler.getAllVacancies(enterpriseNr);
+            allRecruiterVacancies = this.vacancyHandler.getAllVacancies(recruiterEnterpriseNr);
         } catch (SQLException ex) {
-            System.err.println("Unable to get vacancies due to a database issue that has occured.");
-            response.sendError(500, "A database issue has occured.");
-            ex.printStackTrace(err);
+            session.setAttribute("exceptionTitle", "Database Error");
+            session.setAttribute("exceptionMsg", "Failed to get vacancies published from the database.");
+            ex.printStackTrace(System.err);
+            response.sendError(500);
             return;
         } catch (ClassNotFoundException ex) {
-            String message = "Unable to get vacancies due to an unkonwn entity.";
-            System.err.println(message);
-            ex.printStackTrace(err);
-            response.sendError(500, message);
+            session.setAttribute("exceptionTitle", "Internal Server Error");
+            session.setAttribute("exceptionMsg", "A server error occured. Please notify the developer at developer.tk_kujwane@outlook.com");
+            response.sendError(500);
             return;
         }
+
+        try {
+            session.setAttribute("recruiterName",
+                    new RecruiterHandler(
+                            new DatabaseManager()
+                    ).getRecruiter(recruiterEnterpriseNr).getEnterpriseName()
+            );
+        } catch (SQLException ex) {
+            session.setAttribute("exceptionTitle", "Database Error");
+            session.setAttribute("exceptionMsg", "Failed to get recruiter name from the database.");
+            response.sendError(500);
+            return;
+        } catch (ClassNotFoundException ex) {
+            session.setAttribute("exceptionTitle", "Internal Server Error");
+            session.setAttribute("exceptionMsg", "A server error occured. Please notify the developer at developer.tk_kujwane@outlook.com");
+            response.sendError(500);
+            return;
+        }
+
+        for (Vacancy vacancy : allRecruiterVacancies) {
+            try {
+                vacancyTypesList.add(this.vacancyHandler.getVacancyType(vacancy.getVacancyTypeId()));
+            } catch (SQLException ex) {
+                session.setAttribute("exceptionTitle", "Database Error");
+                session.setAttribute("exceptionMsg", "Failed to get vacancy types from the database.");
+                response.sendError(500);
+                return;
+            }
+        }
         
-        request.getSession().setAttribute("vacanciesList", recruiterVacancies);
-        
+        session.setAttribute("vacancyTypes", vacancyTypesList);
+        session.setAttribute("vacanciesList", allRecruiterVacancies);
         response.sendRedirect("recruiterDashboard.jsp");
     }
 

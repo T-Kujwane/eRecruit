@@ -108,25 +108,6 @@
                             
                             <option value="newRecruiter">Other</option>
                         </select>
-                            
-                        <table id="addRecruiterTbl" hidden="">
-                            <tr>
-                                <td>Enterprise Number</td>
-                                <td><input name="newRecruiterEnterpriseNr" type="text" maxlength="30" ></td>
-                            </tr>
-                            <tr>
-                                <td>Enterprise Name</td>
-                                <td><input name="newRecruiterEnterpriseName" type="text" maxlength="50" ></td>
-                            </tr>
-                            <tr>
-                                <td>Enterprise Email</td>
-                                <td><input name="newRecruiterEnterpriseEmail" type="text" maxlength="50" ></td>
-                            </tr>
-                            <tr>
-                                <td>Enterprise Phone Number</td>
-                                <td><input name="newRecruiterEnterprisePhone" type="text" maxlength="10" ></td>
-                            </tr>
-                        </table>
                     </td>
                 </tr>
                 

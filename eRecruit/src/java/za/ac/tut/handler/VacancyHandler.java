@@ -161,6 +161,7 @@ public class VacancyHandler extends NotificationHandler implements Matcher {
         }
 
         for (Qualification requiredQuailification : newVacancy.getRequiredQualifications()) {
+            System.out.println("Inserting qualification \"" + requiredQuailification + "\" into database from " + getClass().getSimpleName());
             String query = "INSERT INTO required_qualification(type_id, course_id, vacancy_reference_nr) VALUES((SELECT type_id FROM qualification_type WHERE type_name = \'" + requiredQuailification.getType() + "\'),"
                     + "(SELECT course_id FROM course WHERE course_name = \'" + requiredQuailification.getCourse() + "\'), \'" + refNr + "\');";
             executeUpdate(query);
@@ -209,7 +210,7 @@ public class VacancyHandler extends NotificationHandler implements Matcher {
             for (Applicant qualifyingApplicant : qualifyingApplicantsList){
                 this.notify(qualifyingApplicant.getEmailAddress(), "Vacancy Withdrawal", "Greetings " + qualifyingApplicant.getFirstName() + ",\n\n"
                         + "We regret to inform you that " + postedVacancy.getPostingRecruiter().getEnterpriseName() + " has decided to withdraw the vacancy " + postedVacancy.getReferenceNr() + 
-                        "for which you were deemed as qualified.\n"
+                        " for which you were deemed as qualified.\n"
                         + "More vacancies will be posted on the eRecruit system, surely something will come up.\n"
                         + "As always, we wish you the best of luck on your endeavours.\n\n"
                         + "Regards, \n"
@@ -233,7 +234,7 @@ public class VacancyHandler extends NotificationHandler implements Matcher {
 
             Vacancy postedVacancy = new Vacancy(refNr, description, closingDate, vacancyTypeID, postingRecruiter);
 
-            rs = executeQuery("SELECT skill FROM skill WHERE skill_id = (SELECT skill_id FROM required_skill WHERE vacancy_reference_nr = \'" + refNr + "\');");
+            rs = executeQuery("SELECT s.skill FROM skill s, required_skill r WHERE s.skill_id = r.skill_id AND LOWER(r.vacancy_reference_nr) = \'" + refNr.toLowerCase() + "\';");
 
             if (getDatabaseManager().hasData(rs)) {
                 while (rs.next()) {
@@ -241,7 +242,7 @@ public class VacancyHandler extends NotificationHandler implements Matcher {
                 }
             }
 
-            rs = executeQuery("SELECT type_name FROM qualification_type WHERE type_id = (SELECT type_id FROM required_qualification WHERE vacancy_reference_nr = \'" + refNr + "\');");
+            rs = executeQuery("SELECT qt.type_name FROM qualification_type qt, required_qualification rq WHERE qt.type_id = rq.type_id AND LOWER(rq.vacancy_reference_nr) = \'" + refNr.toLowerCase() + "\';");
             ArrayList<String> typesList = new ArrayList<>();
 
             if (getDatabaseManager().hasData(rs)) {
@@ -250,7 +251,7 @@ public class VacancyHandler extends NotificationHandler implements Matcher {
                 }
             }
 
-            rs = executeQuery("SELECT course_name FROM course WHERE course_id = (SELECT course_id FROM required_qualification WHERE vacancy_reference_nr = \'" + refNr + "\');");
+            rs = executeQuery("SELECT c.course_name FROM course c, required_qualification rq WHERE c.course_id = rq.course_id AND LOWER(rq.vacancy_reference_nr) = \'" + refNr + "\';");
 
             ArrayList<String> coursesList = new ArrayList<>();
 
@@ -270,5 +271,10 @@ public class VacancyHandler extends NotificationHandler implements Matcher {
         }
 
         return null;
+    }
+    
+    @Override
+    public String getVacancyType(int typeID) throws SQLException{
+        return super.getVacancyType(typeID);
     }
 }

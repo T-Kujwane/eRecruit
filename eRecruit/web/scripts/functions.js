@@ -93,3 +93,42 @@ function show(object) {
     object.hidden = false;
 }
 
+
+function verifyPassword(form){
+    var initialPassword = form.password.value;
+    var confPassword = form.password_confirmation.value;
+    
+    if(initialPassword !== confPassword){
+        document.write("Passwords do not match");
+        return false;
+    }
+    return true;
+}
+
+
+function verifyPassword(){
+    var password = document.getElementsByName("password").value;
+    var passwordConfirmation = document.getElementsByName("passwordConfirmation").value;
+    
+    if (password !== passwordConfirmation){
+        document.write("Password mismatch");
+        alert("Incorrect passwords");
+        event.preventDefault();
+    }
+    //https://www.youtube.com/watch?v=4_WfwSFGJuE
+    //https://www.youtube.com/watch?v=jDfrY2UUSrc
+    //https://www.youtube.com/watch?v=_wIoWVQa5to
+    alert("Matched passwrds");
+    document.write("Password Correct");
+}
+
+function unhideApplicantForm(){
+    document.getElementById("enterpriseForm").hidden = true;
+    document.getElementById("applicantForm").hidden = false;
+}
+
+function unhideEnterpriseForm(){
+    document.getElementById("appluicantFomr").hidden = true;
+    document.getElementById("enterpriseForm").hidden = false;
+    
+}

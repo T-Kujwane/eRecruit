@@ -15,6 +15,7 @@ import javax.servlet.http.HttpSession;
 import za.ac.tut.application.Applicant;
 import za.ac.tut.database.manager.DatabaseManager;
 import za.ac.tut.enums.ApplicantFields;
+import za.ac.tut.user.User;
 
 /**
  *
@@ -118,6 +119,8 @@ public class DeleteProfileServlet extends HttpServlet {
         String query = "DELETE FROM applicant WHERE applicant_id = \'" + session.getAttribute("applicantID") + "\';";
 
         try {
+            dbManager.executeUpdate(query);
+            query = "DELETE FROM users WHERE email_address = \'" + ((User)session.getAttribute("user")).getEmailAddress() + "\';";
             dbManager.executeUpdate(query);
         } catch (SQLException ex) {
             System.err.println("Unable to delete applicant " + session.getAttribute("applicantID"));

@@ -4,11 +4,10 @@
  */
 package za.ac.tut.vacancy;
 
+import java.io.Serializable;
 import java.sql.Date;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import za.ac.tut.database.manager.DatabaseManager;
 import za.ac.tut.interfaces.Matchable;
 import za.ac.tut.qualification.Qualification;
 import za.ac.tut.recruiter.Recruiter;
@@ -17,7 +16,7 @@ import za.ac.tut.recruiter.Recruiter;
  * This class models an object of vacancy
  * @author T Kujwane
  */
-public class Vacancy implements Matchable{
+public class Vacancy implements Matchable, Serializable{
     private final String referenceNr, description;
     private final Date closingDate;
     private final List<Qualification> requiredQualifications;
@@ -83,4 +82,11 @@ public class Vacancy implements Matchable{
     public void addSkill(String newSkill){
         this.requiredSkills.add(newSkill);
     }
+
+    @Override
+    public String toString() {
+        return this.referenceNr + " " + this.description + " " + 
+                this.requiredQualifications.toString() + " " + this.requiredSkills.toString();
+    }
+    
 }
