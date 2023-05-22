@@ -271,4 +271,9 @@ public class VacancyHandler extends NotificationHandler implements Matcher {
 
         return null;
     }
+    
+    @Override
+    public String getVacancyType(int typeID) throws SQLException{
+        return super.getVacancyType(typeID);
+    }
 }

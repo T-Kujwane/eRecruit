@@ -5,10 +5,8 @@
 package za.ac.tut.vacancy;
 
 import java.sql.Date;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import za.ac.tut.database.manager.DatabaseManager;
 import za.ac.tut.interfaces.Matchable;
 import za.ac.tut.qualification.Qualification;
 import za.ac.tut.recruiter.Recruiter;

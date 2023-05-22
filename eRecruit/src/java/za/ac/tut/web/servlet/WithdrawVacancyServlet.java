@@ -6,15 +6,15 @@ package za.ac.tut.web.servlet;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.List;
+import javax.mail.MessagingException;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import za.ac.tut.database.manager.DatabaseManager;
 import za.ac.tut.ejb.EmailSessionBean;
 import za.ac.tut.handler.VacancyHandler;
-import za.ac.tut.vacancy.Vacancy;
 
 /**
  *
@@ -30,7 +30,7 @@ public class WithdrawVacancyServlet extends HttpServlet {
         this.dbManager = new DatabaseManager();
         this.vacancyHandler = new VacancyHandler(dbManager, new EmailSessionBean());
     }
-    
+
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**
      * Handles the HTTP <code>GET</code> method.
@@ -43,7 +43,7 @@ public class WithdrawVacancyServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        String recruiterEntripriseNr = (String) request.getSession().getAttribute("enterpriseNr");
+        doPost(request, response);
     }
 
     /**
@@ -57,6 +57,42 @@ public class WithdrawVacancyServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        String vacancyRefNr = request.getParameter("vacancyReferenceNr");
+        HttpSession session = request.getSession();
+
+        try {
+            this.vacancyHandler.withdrawVacancy(vacancyRefNr);
+        } catch (SQLException ex) {
+            session.setAttribute("exceptionTitle", "Database Error");
+            session.setAttribute("exceptionMsg", "Failed to delete the vacancy from the database.");
+            ex.printStackTrace(System.err);
+            response.sendError(500);
+        } catch (MessagingException ex) {
+            session.setAttribute("exceptionTitle", "Messaging Error");
+            session.setAttribute("exceptionMsg", "Failed to notify applicants that the vacancy is deleted.");
+            response.sendError(500);
+        }
+        
+        response.sendRedirect("vacancyDeleted.jsp");
+    }
+
+    @Override
+    protected void doDelete(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        String vacancyRefNr = request.getParameter("vacancyReferenceNr");
+        HttpSession session = request.getSession();
+
+        try {
+            this.vacancyHandler.withdrawVacancy(vacancyRefNr);
+        } catch (SQLException ex) {
+            session.setAttribute("exceptionTitle", "Database Error");
+            session.setAttribute("exceptionMsg", "Failed to delete the vacancy from the database.");
+            ex.printStackTrace(System.err);
+            response.sendError(500);
+        } catch (MessagingException ex) {
+            session.setAttribute("exceptionTitle", "Messaging Error");
+            session.setAttribute("exceptionMsg", "Failed to notify applicants that the vacancy is deleted.");
+            response.sendError(500);
+        }
         
     }
 

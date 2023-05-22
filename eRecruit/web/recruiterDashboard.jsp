@@ -4,8 +4,9 @@
     Author     : T Kujwane
 --%>
 
-<%@page import="za.ac.tut.vacancy.Vacancy"%>
 <%@page import="java.util.List"%>
+<%@page import="za.ac.tut.vacancy.Vacancy"%>
+
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html>
@@ -17,13 +18,14 @@
     <body>
         <%List<Vacancy> recruiterVacancies = (List<Vacancy>) session.getAttribute("vacanciesList");%>
         <%String recruiter = (String) session.getAttribute("recruiterName");%>
+        <%List<String> vacancyTypes = (List<String>) session.getAttribute("vacancyTypes");%>
         
         <h1><%= recruiter%> Dashboard</h1>
         
         <%if (!recruiterVacancies.isEmpty()){%>
            <p>
                <table>
-                    <th colspan="4">Vacancies Published By <%=recruiter%></th>
+                    <th colspan="5">Vacancies Published By <%=recruiter%></th>
                     <tr>
                         <td>Reference Number</td>
                         <td>Vacancy Description</td>
@@ -35,7 +37,10 @@
                             <td><%=recruiterVacancy.getReferenceNr()%></td>
                             <td><%=recruiterVacancy.getDescription()%></td>
                             <td><%=recruiterVacancy.getClosingDate()%></td>
-                            <td>type</td>
+                            <td><%=vacancyTypes.get(recruiterVacancies.indexOf(recruiterVacancy))%></td>
+                            <td>
+                                <a href="WithdrawVacancyServlet?vacancyReferenceNr=<%=recruiterVacancy.getReferenceNr()%>">Withdraw</a>
+                            </td>
                         </tr>
                     <%}%>
                </table>

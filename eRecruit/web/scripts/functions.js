@@ -93,3 +93,28 @@ function show(object) {
     object.hidden = false;
 }
 
+
+function verifyPassword(form){
+    var initialPassword = form.password.value;
+    var confPassword = form.password_confirmation.value;
+    
+    if(initialPassword !== confPassword){
+        document.write("Passwords do not match");
+        return false;
+    }
+    return true;
+}
+
+
+function verifyPassword(){
+    var password = document.getElementsByName("password").value;
+    var passwordConfirmation = document.getElementsByName("passwordConfirmation").value;
+    
+    if (password !== passwordConfirmation){
+        document.write("Password mismatch");
+        alert("Incorrect passwords");
+        return;
+    }
+    alert("Matched passwrds");
+    document.write("Password Correct");
+}

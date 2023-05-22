@@ -40,6 +40,10 @@
         <servlet-name>WithdrawVacancyServlet</servlet-name>
         <servlet-class>za.ac.tut.web.servlet.WithdrawVacancyServlet</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>AddUserServlet</servlet-name>
+        <servlet-class>za.ac.tut.web.servlet.AddUserServlet</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>SessionManagerServlet</servlet-name>
         <url-pattern>/SessionManagerServlet</url-pattern>
@@ -80,9 +84,25 @@
         <servlet-name>WithdrawVacancyServlet</servlet-name>
         <url-pattern>/WithdrawVacancyServlet</url-pattern>
     </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>AddUserServlet</servlet-name>
+        <url-pattern>/AddUserServlet</url-pattern>
+    </servlet-mapping>
     <session-config>
         <session-timeout>
             30
         </session-timeout>
     </session-config>
+    <error-page>
+        <error-code>500</error-code>
+        <location>/errorPage.jsp</location>
+    </error-page>
+    <error-page>
+        <error-code>400</error-code>
+        <location>/errorPage.jsp</location>
+    </error-page>
+    <error-page>
+        <exception-type>za.ac.tut.exception.ApplicantExistsException</exception-type>
+        <location>/errorPage.jsp</location>
+    </error-page>
 </web-app>

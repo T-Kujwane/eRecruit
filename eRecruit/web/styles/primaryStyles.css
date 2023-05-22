@@ -54,7 +54,7 @@ input[type = "submit"]:hover{
     color: red;
 }
 
-.tickImg, .recycleBinImg{
+.tickImg, .recycleBinImg, .errorGif{
     text-align: center;
 }
 
@@ -65,3 +65,10 @@ a{
 a:hover{
     color: blue;
 }
+
+nav>ul{
+    display: inline;
+    float: right;
+    clear: both;
+}
+
