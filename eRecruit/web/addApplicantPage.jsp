@@ -28,7 +28,7 @@
             Please fill in the form to capture your information into the database.
         </p>
 
-        <form action="ApplicationServlet" method="POST">
+        <form action="ApplicationServlet" method="POST" onsubmit="verifyPassword(this)">
             <table>
                 <tr>
                     <th colspan="2">Create Profile</th>
@@ -134,6 +134,14 @@
                     </td>
                 </tr>
                 
+                <tr>
+                    <td id="password_prompt">Password</td>
+                    <td><input type="password" name="loginPassword" required=""></td>
+                </tr>
+                <tr>
+                    <td>Confirm Password</td>
+                    <td><input type="password" name="password_confirmation"></td>
+                </tr>
                 <tr>
                     <td colspan="2" class="submitBtn">
                         <input type="submit" value="Create Profile"></td>
